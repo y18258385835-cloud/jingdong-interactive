@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐私权保护政策与用户协议 - 开发者：阳枫 (Yang Feng)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #06080c;
+            --bg-surface: #0e121a;
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #00f2fe;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif; }
+        body { background: var(--bg-base); color: var(--text-main); line-height: 1.8; }
+        header {
+            padding: 20px 8%;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(6, 8, 12, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo { font-size: 1.2rem; font-weight: 700; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .back-link { color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+        .content { max-width: 900px; margin: 50px auto 80px; padding: 0 24px; }
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .meta { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        h2 { font-size: 1.35rem; margin: 36px 0 14px; color: var(--primary); font-weight: 700; }
+        p { color: var(--text-muted); margin-bottom: 14px; font-size: 0.95rem; text-align: justify; }
+        ul { margin-left: 20px; color: var(--text-muted); margin-bottom: 18px; }
+        li { margin-bottom: 8px; font-size: 0.95rem; }
+        .highlight-box {
+            background: rgba(0, 242, 254, 0.04);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        footer { border-top: 1px solid var(--border); padding: 40px 8%; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">
+            <span style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg, #00d2ff, #3a7bd5); display:inline-flex; align-items:center; justify-content:center; color:#06080c; font-weight:800; font-size:0.9rem;">JD</span>
+            <span>鲸动交互平台 · 开发者：阳枫</span>
+        </a>
+        <div style="display:flex; gap:20px;">
+            <a href="https://www.jd-hub.top/" class="back-link">企业官网 ↗</a>
+            <a href="/" class="back-link">软件首页 ↗</a>
+        </div>
+    </header>
+
+    <div class="content">
+        <h1>隐私权保护政策 & 最终用户许可协议</h1>
+        <div class="meta">
+            发布主体 / 开发者：<strong>阳枫 (Yang Feng)</strong> · 独立开发者<br>
+            适用产品：鲸动交互平台 (AETHER Interaction Platform) · Microsoft Store 官方版<br>
+            技术支持与合作支持：浙江鲸动文化传媒有限公司<br>
+            生效与更新日期：2026年10月27日
+        </div>
+
+        <h2>一、概述与承诺</h2>
+        <p>独立开发者<strong>阳枫 (Yang Feng)</strong>（以下简称“开发者”或“我们”）高度尊重并切实保护所有通过 <strong>Microsoft Store（微软应用商店）</strong> 或官方渠道下载、安装与使用“<strong>鲸动交互平台</strong>”（以下简称“本软件”）用户的个人隐私与合法数据权益。本政策旨在阐述我们在您使用软件时如何处理技术数据，以及您所享有的数据权利。</p>
+        <div class="highlight-box">
+            <strong style="color: #fff;">核心隐私原则：</strong>
+            <p style="margin-top: 6px; margin-bottom: 0;">本软件是一款面向商业数字展厅、雷达互动设计与多媒体大屏制作的专业级本地创作与渲染工具。我们坚持<strong>“数据本地化、最小必要原则”</strong>，除软件激活鉴权所必须的硬件特征哈希码外，绝不搜集、扫描、分析或上传用户的工程设计文件、个人私密信息或无关通信数据。</p>
+        </div>
+
+        <h2>二、我们收集的技术信息及用途</h2>
+        <p>为保障本软件在本地工控机与商业展厅多设备环境下的正版激活与防盗用机制，我们仅在用户主动触发激活时采集以下极少量的必要技术参数：</p>
+        <ul>
+            <li><strong>不可逆硬件特征代码（Hardware Fingerprint）</strong>：通过本地系统硬件摘要计算的单向不可逆哈希特征，仅用于生成防伪的“一机一码”数字许可证，保障正版用户权益。</li>
+            <li><strong>系统基础运行环境</strong>：如 Windows 操作系统版本号（Windows 10/11）、DirectX / WebGPU 显卡管线版本，用于判定硬件加速渲染兼容性。</li>
+            <li><strong>软件授权卡密凭据</strong>：用户在软件激活窗口中输入的合法激活凭证，用于向云端授权鉴权服务器完成正版验证。</li>
+        </ul>
+
+        <h2>三、微软应用商店 (Microsoft Store) 个人开发者合规政策遵循</h2>
+        <p>本软件严格遵循微软应用商店个人开发者政策（Microsoft Store App Developer Agreement & Certification Policies，包括 Policy 10.5 个人信息保护规范）：</p>
+        <ul>
+            <li><strong>传输高强度加密</strong>：所有与云端服务器的通信均采用 TLS 1.3 / HTTPS 协议加密传输，防范窃听与中间人攻击。</li>
+            <li><strong>离线稳定运行</strong>：本软件完成首次激活后，许可证在本地安全存储，支持完全脱机/断网的商业展厅环境长期稳定运行，绝无强制常驻后台或弹窗行为。</li>
+            <li><strong>无广告、无恶意代码</strong>：本软件不包含任何第三方追踪广告 SDK、静默自启动程序或任何潜在流氓组件。</li>
+        </ul>
+
+        <h2>四、知识产权与用户行为规范</h2>
+        <p>本软件之整体架构、视觉界面设计、3D交互渲染核心及源代码之著作权与知识产权归开发者<strong>阳枫 (Yang Feng)</strong>合法所有。获得合法授权的用户享有规定期限内的商业创作与展示使用权，未经书面许可，严禁对软件进行反编译、反向工程或非法破译传播。</p>
+
+        <h2>五、开发者资质与技术支持联系方式</h2>
+        <p>若您对本隐私政策、应用商店合规事宜或软件运行有任何疑问、建议或技术咨询，欢迎随时与开发者联系：</p>
+        <ul>
+            <li><strong>开发者署名</strong>：阳枫 (Yang Feng)</li>
+            <li><strong>技术支持专页</strong>：<a href="/support.html" style="color:var(--primary);">https://jd-hub.top/support.html</a></li>
+            <li><strong>官方技术支持邮箱</strong>：<a href="mailto:contact@jd-hub.top" style="color:var(--primary);">contact@jd-hub.top</a></li>
+            <li><strong>官方软件网站</strong>：<a href="https://jd-hub.top/" target="_blank" style="color:var(--primary);">https://jd-hub.top/</a></li>
+        </ul>
+    </div>
+
+    <footer>
+        &copy; 2026 阳枫 (Yang Feng) 版权所有 · All Rights Reserved.
+    </footer>
+</body>
+</html>

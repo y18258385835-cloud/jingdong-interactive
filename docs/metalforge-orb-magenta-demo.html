@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MetalForge orb-magenta 1:1 复刻 · 金属光球演示</title>
+<style>
+  :root {
+    --bg: #0b0d14;
+    --panel: #141824;
+    --panel2: #1a1f2e;
+    --line: #2a3042;
+    --txt: #e6e9f2;
+    --dim: #8b93a7;
+    --acc: #F25AED;
+    --acc2: #512F7F;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--txt); overflow: hidden;
+  }
+  #app { display: flex; height: 100vh; }
+  /* 左侧预览 */
+  #stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; }
+  #stageCanvas { width: 100%; height: 100%; display: block; }
+  .badge {
+    position: absolute; top: 14px; left: 16px; font-size: 11px; color: #cfd4e3;
+    background: rgba(20,24,36,.72); border: 1px solid var(--line); border-radius: 8px;
+    padding: 5px 10px; letter-spacing: .3px; backdrop-filter: blur(6px);
+  }
+  .badge b { color: var(--acc); }
+  .fps { position: absolute; top: 14px; right: 16px; font-size: 11px; color: #9aa4bb;
+    background: rgba(20,24,36,.72); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; }
+  /* 右侧参数面板 */
+  #panel {
+    width: 340px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+  }
+  #panelHead { padding: 14px 16px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  #panelHead h1 { font-size: 15px; font-weight: 700; letter-spacing: .3px; }
+  #panelHead h1 span { color: var(--acc); }
+  #panelHead p { font-size: 11px; color: var(--dim); margin-top: 3px; }
+  #params { flex: 1; overflow-y: auto; padding: 12px 16px 16px; }
+  .grp { margin-bottom: 14px; }
+  .grp-t { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .grp-t .nm { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; color: var(--acc); }
+  .grp-t .ln { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(242,90,237,.5), transparent); }
+  .row { margin-bottom: 9px; }
+  .row .lab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+  .row .lab span { font-size: 11px; color: #c6cbd9; }
+  .row .lab em { font-style: normal; font-size: 10px; color: #fff; font-family: ui-monospace, Menlo, monospace; }
+  input[type=range] { -webkit-appearance: none; width: 100%; height: 16px; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--line); }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; margin-top: -4px;
+    background: var(--acc); box-shadow: 0 0 8px rgba(242,90,237,.6); border: none;
+  }
+  .color-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .color-row .ck { display: flex; align-items: center; gap: 8px; }
+  .color-row label { font-size: 11px; color: #c6cbd9; }
+  input[type=color] { width: 30px; height: 22px; border: 1px solid var(--line); border-radius: 5px; background: transparent; padding: 0; cursor: pointer; }
+  input[type=color]::-webkit-color-swatch-wrapper { padding: 2px; }
+  input[type=color]::-webkit-color-swatch { border: none; border-radius: 3px; }
+  .color-row code { font-size: 10px; color: var(--dim); font-family: ui-monospace, monospace; }
+  #panelFoot { border-top: 1px solid var(--line); padding: 12px 16px; flex-shrink: 0; }
+  .btns { display: flex; gap: 8px; margin-bottom: 9px; }
+  .btn {
+    flex: 1; font-size: 12px; font-weight: 600; color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc2));
+    border: none; border-radius: 8px; padding: 8px 0; cursor: pointer; transition: filter .15s, transform .05s;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:active { transform: scale(.97); }
+  .btn.ghost { background: var(--panel2); border: 1px solid var(--line); color: var(--txt); }
+  #shareLink { width: 100%; font-size: 10px; color: var(--dim); background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 7px; padding: 6px 8px; font-family: ui-monospace, monospace; resize: none; height: 42px; }
+  #toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); opacity: 0;
+    background: #10141f; border: 1px solid var(--acc); color: #fff; font-size: 12px; padding: 8px 16px;
+    border-radius: 8px; transition: .25s; pointer-events: none; z-index: 99; box-shadow: 0 6px 24px rgba(0,0,0,.5); }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="stageCanvas"></canvas>
+    <div class="badge">MetalForge <b>orb-magenta</b> · 1:1 复刻（Canvas 2D 像素着色器）</div>
+    <div class="fps" id="fps">-- fps</div>
+  </div>
+
+  <div id="panel">
+    <div id="panelHead">
+      <h1>Parameters · <span>PARAMETER PANEL</span></h1>
+      <p>拖动滑块 / 改颜色，预览实时联动（与原站右侧面板一致）</p>
+    </div>
+    <div id="params"></div>
+    <div id="panelFoot">
+      <div class="btns">
+        <button class="btn" id="btnShare">Copy share link</button>
+        <button class="btn ghost" id="btnCopyJson">复制 JSON</button>
+        <button class="btn ghost" id="btnReset">恢复默认</button>
+      </div>
+      <textarea id="shareLink" readonly placeholder="点击上方按钮生成可分享参数链接…"></textarea>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+ * MetalForge orb-magenta 1:1 复刻 — Canvas 2D 逐像素像素着色器
+ * 参数默认值 = metalforge.xyz URL share link 反解（三处一致）
+ * ============================================================ */
+(function () {
+  'use strict';
+
+  // —— 默认参数（URL share link 反解）——
+  var DEFAULTS = {
+    // COLORS
+    colorA: '#F25AED', colorB: '#FFFFFF',
+    rimColor: '#FFFFFF', glintColor: '#FFFFFF',
+    iridColor: '#512F7F', glowColor: '#F25AED',
+    // MOTION
+    speed: 1, flow: 0.3, turbulence: 0.15, shimmer: 0.1, wobble: 0,
+    // SHAPE
+    radius: 0.86, scale: 1.35, marble: 1.7, refraction: 0.55, seed: 0,
+    // LIGHT
+    rim: 0.9, glint: 0.5, innerGlow: 0.55, halo: 0,
+    // GRADE
+    contrast: 1.25, bias: -0.04, fringe: 0.8, iridescence: 0,
+    // EDGE / FINISH
+    edgeSoftness: 0.005, edgeGlow: 0, grain: 1, exposure: 1
+  };
+
+  // 参数面板 Schema（分组 + 滑块范围）
+  var SCHEMA = [
+    { group: 'MOTION', params: [
+      { key: 'flow', label: '纹理流动 Flow', min: 0, max: 1.5, step: 0.01 },
+      { key: 'turbulence', label: '扰动 Turbulence', min: 0, max: 1, step: 0.01 },
+      { key: 'shimmer', label: '微光 Shimmer', min: 0, max: 1, step: 0.01 },
+      { key: 'wobble', label: '摇摆 Wobble', min: 0, max: 0.6, step: 0.01 },
+    ]},
+    { group: 'SHAPE', params: [
+      { key: 'radius', label: '球半径 Radius', min: 0.4, max: 1.2, step: 0.01 },
+      { key: 'scale', label: '缩放 Scale', min: 0.6, max: 2.2, step: 0.01 },
+      { key: 'marble', label: '大理石纹 Marble', min: 0, max: 3, step: 0.01 },
+      { key: 'refraction', label: '折射 Refraction', min: 0, max: 1.2, step: 0.01 },
+      { key: 'seed', label: '种子 Seed', min: 0, max: 10, step: 1 },
+    ]},
+    { group: 'LIGHT', params: [
+      { key: 'rim', label: '边缘光 Rim', min: 0, max: 2, step: 0.01 },
+      { key: 'glint', label: '高光 Glint', min: 0, max: 2, step: 0.01 },
+      { key: 'innerGlow', label: '内发光 Inner Glow', min: 0, max: 2, step: 0.01 },
+      { key: 'halo', label: '光晕 Halo', min: 0, max: 1.5, step: 0.01 },
+    ]},
+    { group: 'GRADE', params: [
+      { key: 'contrast', label: '对比度 Contrast', min: 0.5, max: 2.5, step: 0.01 },
+      { key: 'bias', label: '亮度偏移 Bias', min: -0.5, max: 0.5, step: 0.01 },
+      { key: 'fringe', label: '色差 Fringe', min: 0, max: 2, step: 0.01 },
+      { key: 'iridescence', label: '虹彩 Iridescence', min: 0, max: 1.2, step: 0.01 },
+    ]},
+    { group: 'EDGE / FINISH', params: [
+      { key: 'edgeSoftness', label: '边缘羽化 Edge Softness', min: 0, max: 0.05, step: 0.001 },
+      { key: 'edgeGlow', label: '边缘辉光 Edge Glow', min: 0, max: 1, step: 0.01 },
+      { key: 'grain', label: '颗粒 Grain', min: 0, max: 1.5, step: 0.01 },
+      { key: 'exposure', label: '曝光 Exposure', min: 0.5, max: 2.5, step: 0.01 },
+    ]}
+  ];
+
+  var COLOR_KEYS = ['colorA', 'colorB', 'rimColor', 'glintColor', 'iridColor', 'glowColor'];
+
+  var P = Object.assign({}, DEFAULTS);       // 当前参数
+  var dirty = true;
+
+  /* ================= 渲染（Canvas 2D 像素着色器） ================= */
+  function h2r(hex) {
+    var h = (hex || '#F25AED').replace('#', '');
+    if (h.length === 3) h = h.split('').map(function (c) { return c + c; }).join('');
+    var n = parseInt(h, 16);
+    if (isNaN(n)) return { r: 242, g: 90, b: 237 };
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function mix(a, b, t) { return a + (b - a) * t; }
+  function h01(i) { var s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+
+  // 3D value noise + fbm（大理石纹理）
+  function vnoise3(x, y, z, seed) {
+    var ix = Math.floor(x), iy = Math.floor(y), iz = Math.floor(z);
+    var fx = x - ix, fy = y - iy, fz = z - iz;
+    var ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy), uz = fz * fz * (3 - 2 * fz);
+    function h(i, j, k) { var n = i * 127.1 + j * 311.7 + k * 74.7 + seed * 269.5, s = Math.sin(n) * 43758.5453; return s - Math.floor(s); }
+    var c000 = h(ix, iy, iz), c100 = h(ix + 1, iy, iz), c010 = h(ix, iy + 1, iz), c110 = h(ix + 1, iy + 1, iz);
+    var c001 = h(ix, iy, iz + 1), c101 = h(ix + 1, iy, iz + 1), c011 = h(ix, iy + 1, iz + 1), c111 = h(ix + 1, iy + 1, iz + 1);
+    var x00 = c000 + (c100 - c000) * ux, x10 = c010 + (c110 - c010) * ux, x01 = c001 + (c101 - c001) * ux, x11 = c011 + (c111 - c011) * ux;
+    var y0 = x00 + (x10 - x00) * uy, y1 = x01 + (x11 - x01) * uy;
+    return y0 + (y1 - y0) * uz;
+  }
+  function fbm3(x, y, z, seed) {
+    var v = 0, amp = 0.5, ff = 1, o;
+    for (o = 0; o < 3; o++) { v += amp * vnoise3(x * ff, y * ff, z * ff, seed + o * 17.31); ff *= 2.02; amp *= 0.5; }
+    return v;
+  }
+
+  // 离屏渲染缓存（避免每帧新建 canvas）
+  var offCache = document.createElement('canvas');
+  var offCtxCache = offCache.getContext('2d');
+  var imgCache = null;
+
+  function render(ctx, w, h, t, P) {
+    var tt = t * P.speed;
+    var cA = h2r(P.colorA), cB = h2r(P.colorB);
+    var rimCol = h2r(P.rimColor), glintCol = h2r(P.glintColor), iridCol = h2r(P.iridColor), glowCol = h2r(P.glowColor);
+
+    // 内部分辨率（平滑放大）
+    var iw = Math.min(Math.max(96, w), 280), ih = Math.max(1, Math.round(iw * h / w));
+    if (offCache.width !== iw) offCache.width = iw;
+    if (offCache.height !== ih) offCache.height = ih;
+    var octx = offCtxCache;
+    if (!imgCache || imgCache.width !== iw || imgCache.height !== ih) imgCache = octx.createImageData(iw, ih);
+    var data = imgCache.data;
+
+    // 光源（URL light=-0.62,-0.78）
+    var ll = Math.hypot(-0.62, -0.78, 0.5), Lx = -0.62 / ll, Ly = -0.78 / ll, Lz = 0.5 / ll;
+    var cxx = iw / 2 + P.wobble * Math.sin(tt * 0.7) * iw * 0.08;
+    var cyy = ih / 2 + P.wobble * Math.cos(tt * 0.55) * ih * 0.08;
+    var R = P.radius * P.scale * Math.min(iw, ih) * 0.5;
+    var tF = tt * P.flow, sk = 0.5 + 0.5 * Math.sin(tt * 2.3);
+
+    for (var py = 0; py < ih; py++) {
+      for (var px = 0; px < iw; px++) {
+        var idx = (py * iw + px) * 4;
+        var sx = (px - cxx) / R, sy = (py - cyy) / R;
+        var d2 = sx * sx + sy * sy;
+        if (d2 >= 1) {
+          var dd = Math.sqrt(d2), rr = 0, gg = 0, bb = 0, al = 0, hA, eA;
+          if (P.halo > 0) { hA = P.halo * Math.max(0, 1 - (dd - 1) / 0.5) * 0.55; if (hA > 0.002) { rr += glowCol.r * hA; gg += glowCol.g * hA; bb += glowCol.b * hA; al += hA; } }
+          if (P.edgeGlow > 0 && dd < 1.2) { eA = P.edgeGlow * Math.max(0, 1 - (dd - 1) / 0.2) * 0.6; if (eA > 0.002) { rr += glowCol.r * eA; gg += glowCol.g * eA; bb += glowCol.b * eA; al += eA; } }
+          data[idx] = Math.min(255, rr); data[idx + 1] = Math.min(255, gg); data[idx + 2] = Math.min(255, bb);
+          data[idx + 3] = Math.max(0, Math.min(255, al * 255));
+          continue;
+        }
+        var d = Math.sqrt(d2), z = Math.sqrt(Math.max(0, 1 - d2));
+        var Nx = sx, Ny = sy, Nz = z, nl = Math.hypot(Nx, Ny, Nz) || 1;
+        Nx /= nl; Ny /= nl; Nz /= nl;
+        var tx = (Nx + sx * P.refraction * 0.6) * P.marble + tF;
+        var ty = (Ny + sy * P.refraction * 0.6) * P.marble + tF * 0.7;
+        var tz = Nz * P.marble + tF * 0.4;
+        if (P.turbulence > 0) {
+          var tw = fbm3(tx * 1.3, ty * 1.3, tz * 1.3, P.seed) - 0.5;
+          tx += tw * P.turbulence * 3.0; ty += tw * P.turbulence * 2.4; tz += tw * P.turbulence * 1.8;
+        }
+        var nv = Math.max(0, Math.min(1, fbm3(tx, ty, tz, P.seed)));
+        var ca = (1 - Nz) * P.fringe * 0.45;
+        var nR = Math.max(0, Math.min(1, nv + ca * 0.5));
+        var nB = Math.max(0, Math.min(1, nv - ca * 0.5));
+        var baseR = mix(cB.r, cA.r, nR), baseG = mix(cB.g, cA.g, nv), baseB = mix(cB.b, cA.b, nB);
+        if (P.iridescence > 0) {
+          var irA = P.iridescence * nv * 0.55;
+          baseR += iridCol.r * irA; baseG += iridCol.g * irA; baseB += iridCol.b * irA;
+        }
+        var diff = Math.max(0, Nx * Lx + Ny * Ly + Nz * Lz);
+        var dLN = Nx * Lx + Ny * Ly + Nz * Lz, Rfz = 2 * dLN * Nz - Lz;
+        var spec = Math.pow(Math.max(0, Rfz), 56) * P.glint * (0.65 + 0.35 * sk);
+        var rimL = Math.pow(1 - Nz, 2.6) * P.rim;
+        var inner = (1 - d) * P.innerGlow * 0.85;
+        var lum = diff * P.contrast + P.bias;
+        var rC = baseR * Math.max(0, lum) + glintCol.r * spec + rimCol.r * rimL + glowCol.r * inner;
+        var gC = baseG * Math.max(0, lum) + glintCol.g * spec + rimCol.g * rimL + glowCol.g * inner;
+        var bC = baseB * Math.max(0, lum) + glintCol.b * spec + rimCol.b * rimL + glowCol.b * inner;
+        if (P.grain > 0) {
+          var g2 = (h01(px * 12.9898 + py * 78.233 + Math.floor(tt * 30)) - 0.5) * P.grain * 30;
+          rC += g2; gC += g2; bC += g2;
+        }
+        rC *= P.exposure; gC *= P.exposure; bC *= P.exposure;
+        var soft = Math.max(0.015, P.edgeSoftness * 400);
+        var alpha = Math.max(0, Math.min(1, (1 - d) / soft));
+        data[idx] = Math.max(0, Math.min(255, rC));
+        data[idx + 1] = Math.max(0, Math.min(255, gC));
+        data[idx + 2] = Math.max(0, Math.min(255, bC));
+        data[idx + 3] = Math.max(0, Math.min(255, alpha * 255));
+      }
+    }
+    octx.putImageData(imgCache, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(offCache, 0, 0, iw, ih, 0, 0, w, h);
+  }
+
+  /* ================= 预览主循环 ================= */
+  var canvas = document.getElementById('stageCanvas');
+  var ctx = canvas.getContext('2d');
+  var t0 = performance.now(), frames = 0, lastFpsT = t0;
+  function fit() {
+    var r = document.getElementById('stage').getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(r.width * Math.min(1, window.devicePixelRatio || 1)));
+    canvas.height = Math.max(1, Math.round(r.height * Math.min(1, window.devicePixelRatio || 1)));
+    // 预览用较低内部分辨率保性能（像素着色器）
+    canvas.width = Math.min(canvas.width, 480);
+    canvas.height = Math.min(canvas.height, 360);
+  }
+  fit();
+  window.addEventListener('resize', fit);
+
+  function loop(now) {
+    render(ctx, canvas.width, canvas.height, (now - t0) / 1000, P);
+    frames++;
+    if (now - lastFpsT > 500) {
+      document.getElementById('fps').textContent = Math.round(frames * 1000 / (now - lastFpsT)) + ' fps';
+      frames = 0; lastFpsT = now;
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ================= 参数面板 ================= */
+  function buildPanel() {
+    var wrap = document.getElementById('params');
+    wrap.innerHTML = '';
+    // COLORS 组
+    var g0 = el('div', 'grp');
+    g0.appendChild(elGroupTitle('COLORS'));
+    COLOR_KEYS.forEach(function (key) {
+      var label = { colorA: '主色 Color A', colorB: '副色 Color B', rimColor: '边缘光 Rim', glintColor: '高光 Glint', iridColor: '虹彩 Iridescent', glowColor: '辉光 Glow' }[key];
+      var row = el('div', 'color-row');
+      var ck = el('div', 'ck');
+      var inp = document.createElement('input'); inp.type = 'color';
+      inp.value = P[key];
+      inp.addEventListener('input', function () { P[key] = inp.value; document.getElementById('clr-' + key).textContent = inp.value.toUpperCase(); });
+      ck.appendChild(inp); ck.appendChild(el('label', null, label));
+      row.appendChild(ck);
+      var code = el('code', null, P[key].toUpperCase()); code.id = 'clr-' + key;
+      row.appendChild(code);
+      g0.appendChild(row);
+    });
+    wrap.appendChild(g0);
+    // 数值组
+    SCHEMA.forEach(function (grp) {
+      var g = el('div', 'grp');
+      g.appendChild(elGroupTitle(grp.group));
+      grp.params.forEach(function (p) {
+        var row = el('div', 'row');
+        var lab = el('div', 'lab');
+        lab.appendChild(el('span', null, p.label));
+        var em = el('em'); em.id = 'v-' + p.key; em.textContent = fmt(P[p.key], p);
+        lab.appendChild(em);
+        var input = document.createElement('input');
+        input.type = 'range'; input.min = p.min; input.max = p.max; input.step = p.step; input.value = P[p.key];
+        input.addEventListener('input', function () {
+          P[p.key] = parseFloat(input.value);
+          em.textContent = fmt(P[p.key], p);
+        });
+        row.appendChild(lab); row.appendChild(input);
+        g.appendChild(row);
+      });
+      wrap.appendChild(g);
+    });
+  }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  }
+  function elGroupTitle(name) {
+    var t = el('div', 'grp-t');
+    t.appendChild(el('span', 'nm', name));
+    t.appendChild(el('div', 'ln'));
+    return t;
+  }
+  function fmt(v, p) { return Number(v).toFixed(p.step >= 1 ? 0 : p.step >= 0.01 ? 2 : 3); }
+
+  /* ================= 分享链接 / JSON ================= */
+  function buildShareLink() {
+    var q = ['effect=orb-magenta'];
+    Object.keys(P).forEach(function (k) {
+      var v = P[k];
+      if (COLOR_KEYS.indexOf(k) >= 0) q.push(k + '=' + encodeURIComponent(v));
+      else q.push(k + '=' + v);
+    });
+    return 'https://metalforge.xyz/editor#' + q.join('&');
+  }
+  function buildJSON() { return JSON.stringify(P, null, 2); }
+  function copyText(txt, msg) {
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(function () { toast(msg); })
+      .catch(function () {
+        var ta = document.getElementById('shareLink');
+        ta.value = txt; ta.select();
+        try { document.execCommand('copy'); toast(msg); } catch (e) { toast('已显示在输入框，请手动复制'); }
+      });
+  }
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+
+  document.getElementById('btnShare').addEventListener('click', function () {
+    var link = buildShareLink();
+    document.getElementById('shareLink').value = link;
+    copyText(link, '分享链接已复制（含全部参数）');
+  });
+  document.getElementById('btnCopyJson').addEventListener('click', function () {
+    copyText(buildJSON(), '参数 JSON 已复制（可持久化保存）');
+  });
+  document.getElementById('btnReset').addEventListener('click', function () {
+    Object.assign(P, DEFAULTS);
+    buildPanel();
+    toast('已恢复 MetalForge 默认参数');
+  });
+
+  buildPanel();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1845 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@keyframes aether-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes aether-fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes aether-zoom-in {
+  0% { opacity: 0; transform: scale(0.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes aether-zoom-out {
+  0% { opacity: 0; transform: scale(1.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes aether-slide-up {
+  0% { opacity: 0; transform: translateY(60px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes aether-slide-down {
+  0% { opacity: 0; transform: translateY(-60px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes aether-slide-left {
+  0% { opacity: 0; transform: translateX(80px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes aether-slide-right {
+  0% { opacity: 0; transform: translateX(-80px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes aether-elastic-pop {
+  0% { opacity: 0; transform: scale(0.2); }
+  60% { opacity: 1; transform: scale(1.08); }
+  80% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+@keyframes aether-flip-3d {
+  0% { opacity: 0; transform: perspective(600px) rotateX(80deg); }
+  100% { opacity: 1; transform: perspective(600px) rotateX(0deg); }
+}
+
+@keyframes aether-glitch {
+  0% { transform: translate(0); opacity: 1; }
+  20% { transform: translate(-3px, 3px) skewX(4deg); }
+  40% { transform: translate(-3px, -3px) skewX(-4deg); }
+  60% { transform: translate(3px, 3px) skewX(2deg); }
+  80% { transform: translate(3px, -3px); }
+  100% { transform: translate(0); opacity: 1; }
+}
+
+@keyframes aether-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.85; }
+}
+
+@keyframes aether-var-flash {
+  0% {
+    background-color: rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    transform: scale(1.03);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+    transform: scale(1);
+  }
+}
+
+.animate-var-flash {
+  animation: aether-var-flash 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes aether-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes aether-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.9; }
+}
+
+@keyframes aether-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes aether-shimmer {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 5px rgba(56,189,248,0.2)); }
+  50% { filter: brightness(1.25) drop-shadow(0 0 20px rgba(56,189,248,0.7)); }
+}
+
+/* ================= SCENE-LEVEL TRANSITION ANIMATIONS ================= */
+/* 【轨迹优化】入场/出场动画统一遵循「直接运动、无前置淡入」原则：
+   - fade：纯透明度淡入淡出；
+   - slide：全程不透明直接平移 + 轻微 scale 景深（去掉了旧的 0.4 前置淡入，
+     避免"先淡入再滑动"的割裂感，与弹窗动画规则一致）；
+   - zoom：平滑缩放；
+   - dissolve：模糊溶解；
+   - 出场动画干净利落、以淡出收尾。 */
+@keyframes scene-trans-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scene-trans-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes scene-trans-slide-left-in {
+  from { transform: translate3d(100%, 0, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes scene-trans-slide-left-out {
+  from { transform: translate3d(0, 0, 0); opacity: 1; }
+  to { transform: translate3d(-100%, 0, 0); opacity: 0; }
+}
+
+@keyframes scene-trans-slide-right-in {
+  from { transform: translate3d(-100%, 0, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes scene-trans-slide-right-out {
+  from { transform: translate3d(0, 0, 0); opacity: 1; }
+  to { transform: translate3d(100%, 0, 0); opacity: 0; }
+}
+
+@keyframes scene-trans-slide-up-in {
+  from { transform: translate3d(0, 100%, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes scene-trans-slide-up-out {
+  from { transform: translate3d(0, 0, 0); opacity: 1; }
+  to { transform: translate3d(0, -100%, 0); opacity: 0; }
+}
+
+@keyframes scene-trans-slide-down-in {
+  from { transform: translate3d(0, -100%, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes scene-trans-slide-down-out {
+  from { transform: translate3d(0, 0, 0); opacity: 1; }
+  to { transform: translate3d(0, 100%, 0); opacity: 0; }
+}
+
+@keyframes scene-trans-zoom-in {
+  from { transform: scale3d(0.85, 0.85, 1); opacity: 0; }
+  to { transform: scale3d(1, 1, 1); opacity: 1; }
+}
+
+@keyframes scene-trans-zoom-out {
+  from { transform: scale3d(1.15, 1.15, 1); opacity: 0; }
+  to { transform: scale3d(1, 1, 1); opacity: 1; }
+}
+
+@keyframes scene-trans-zoom-out-exit {
+  from { transform: scale3d(1, 1, 1); opacity: 1; }
+  to { transform: scale3d(0.85, 0.85, 1); opacity: 0; }
+}
+
+@keyframes scene-trans-dissolve-in {
+  from { filter: brightness(1.15); opacity: 0; }
+  to { filter: brightness(1); opacity: 1; }
+}
+
+@keyframes scene-trans-dissolve-out {
+  from { filter: brightness(1); opacity: 1; }
+  to { filter: brightness(1.15); opacity: 0; }
+}
+
+@keyframes scene-trans-flip-3d-in {
+  from { transform: perspective(1400px) rotateY(90deg) scale3d(0.92, 0.92, 1); opacity: 0; }
+  to { transform: perspective(1400px) rotateY(0deg) scale3d(1, 1, 1); opacity: 1; }
+}
+
+@keyframes scene-trans-flip-3d-out {
+  from { transform: perspective(1400px) rotateY(0deg) scale3d(1, 1, 1); opacity: 1; }
+  to { transform: perspective(1400px) rotateY(-90deg) scale3d(0.92, 0.92, 1); opacity: 0; }
+}
+
+@keyframes scene-trans-cube-3d-in {
+  from { transform: perspective(1600px) rotateY(90deg) translateZ(400px); opacity: 0; }
+  to { transform: perspective(1600px) rotateY(0deg) translateZ(0); opacity: 1; }
+}
+
+@keyframes scene-trans-cube-3d-out {
+  from { transform: perspective(1600px) rotateY(0deg) translateZ(0); opacity: 1; }
+  to { transform: perspective(1600px) rotateY(-90deg) translateZ(400px); opacity: 0; }
+}
+
+@keyframes scene-trans-glitch {
+  0% { transform: scale3d(1, 1, 1) translate3d(0, 0, 0); opacity: 0; }
+  15% { transform: scale3d(1.02, 1.02, 1) translate3d(-6px, 3px, 0) skewX(4deg); opacity: 0.8; }
+  35% { transform: scale3d(0.98, 0.98, 1) translate3d(6px, -3px, 0) skewX(-4deg); opacity: 0.9; }
+  55% { transform: scale3d(1.01, 1.01, 1) translate3d(-3px, -1px, 0); opacity: 1; }
+  75% { transform: scale3d(0.99, 0.99, 1) translate3d(3px, 1px, 0); opacity: 1; }
+  100% { transform: scale3d(1, 1, 1) translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes scene-trans-wipe-right-in {
+  from { clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%); opacity: 0; }
+  to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+}
+
+/* Seamless transition masks. They only animate the composited stage layers;
+   the authored scene layout and timeline remain unchanged. */
+@keyframes scene-trans-soft-wipe-in {
+  from { clip-path: inset(0 100% 0 0); opacity: 1; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+
+@keyframes scene-trans-soft-wipe-out {
+  from { clip-path: inset(0 0 0 0); opacity: 1; }
+  to { clip-path: inset(0 0 0 100%); opacity: 0; }
+}
+
+@keyframes scene-trans-radial-reveal-in {
+  from { clip-path: circle(0% at 50% 50%); opacity: 1; }
+  to { clip-path: circle(150% at 50% 50%); opacity: 1; }
+}
+
+@keyframes scene-trans-radial-reveal-out {
+  from { clip-path: circle(150% at 50% 50%); opacity: 1; }
+  to { clip-path: circle(0% at 50% 50%); opacity: 0; }
+}
+
+@keyframes scene-trans-diagonal-curtain-in {
+  from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); opacity: 1; }
+  to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+}
+
+@keyframes scene-trans-diagonal-curtain-out {
+  from { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+  to { clip-path: polygon(100% 0, 100% 0, 75% 100%, 75% 100%); opacity: 0; }
+}
+
+@keyframes scene-trans-blur-dissolve-in {
+  from { opacity: 0; transform: scale3d(1.02, 1.02, 1); filter: blur(4px); }
+  to { opacity: 1; transform: scale3d(1, 1, 1); filter: blur(0); }
+}
+
+@keyframes scene-trans-blur-dissolve-out {
+  from { opacity: 1; transform: scale3d(1, 1, 1); filter: blur(0); }
+  to { opacity: 0; transform: scale3d(0.98, 0.98, 1); filter: blur(4px); }
+}
+
+
+/* ============================================================
+   元素悬停反馈特效（剪映式 hover 反馈，编辑/预览均生效）
+   核心：发光/描边使用 filter: drop-shadow 应用于「内容子元素」，
+   严格贴合元素实际渲染形状（PNG 透明通道 / clip-path 形状 / 圆角 / 文字轮廓），
+   不再使用矩形 box-shadow 光晕。扫光/提亮保留伪元素叠加方案。
+   ============================================================ */
+.aether-hover {
+  position: relative;
+  --hover-intensity: 0.5;
+  transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2), border-radius 0.28s ease, box-shadow 0.28s ease;
+}
+
+/* Canvas transforms are driven by pointer frames. Component level hover and
+   control transitions must not interpolate those frames and then catch up in
+   a later frame, which looks like a resize hitch or a sudden snap. The marker
+   is applied only for the active editor gesture and is removed on release. */
+[data-aether-transform-gesture="true"],
+[data-aether-transform-gesture="true"] * {
+  transition: none !important;
+}
+
+/* The outgoing scene is a frozen frame above the live incoming stage. This
+   creates a true overlap without a backdrop-filter or a second media tree. */
+.aether-scene-transition-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  transform-origin: center center;
+  will-change: opacity, transform, filter;
+}
+
+.aether-scene-transition-overlay > * {
+  transform-origin: center center;
+}
+
+.aether-scene-transition-seam {
+  position: absolute;
+  inset: -8%;
+  z-index: 81;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 28%, rgba(190, 232, 255, 0.08) 43%, rgba(255, 255, 255, 0.2) 50%, rgba(190, 232, 255, 0.08) 57%, transparent 72%);
+  mix-blend-mode: screen;
+  animation-name: aether-scene-transition-seam-out !important;
+  will-change: opacity, transform;
+}
+
+.aether-scene-transition-seam--radial-reveal {
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.34) 0, rgba(190,232,255,0.12) 22%, transparent 52%);
+  animation-name: aether-scene-transition-radial-seam-out !important;
+}
+
+.aether-scene-transition-seam--diagonal-curtain {
+  background: linear-gradient(125deg, transparent 36%, rgba(255,255,255,0.3) 49%, rgba(168,225,255,0.1) 59%, transparent 70%);
+  animation-name: aether-scene-transition-diagonal-seam-out !important;
+}
+
+.aether-scene-transition-seam--blur-dissolve {
+  background: transparent;
+  mix-blend-mode: normal;
+  animation-name: aether-scene-transition-blur-seam-out !important;
+}
+
+@keyframes aether-scene-transition-seam-out {
+  from { opacity: 0.52; transform: translateX(-7%); }
+  to { opacity: 0; transform: translateX(106%); }
+}
+
+@keyframes aether-scene-transition-radial-seam-out {
+  from { opacity: 0.68; transform: scale(0.2); }
+  to { opacity: 0; transform: scale(2.4); }
+}
+
+@keyframes aether-scene-transition-diagonal-seam-out {
+  from { opacity: 0.58; transform: translateX(-28%) skewX(-18deg); }
+  to { opacity: 0; transform: translateX(125%) skewX(-18deg); }
+}
+
+@keyframes aether-scene-transition-blur-seam-out {
+  from { opacity: 0.18; }
+  to { opacity: 0; }
+}
+.aether-hover::before,
+.aether-hover::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 3;
+}
+.aether-hover:hover::before,
+.aether-hover:hover::after,
+.aether-hover.aether-hover-preview::before,
+.aether-hover.aether-hover-preview::after {
+  opacity: 1;
+}
+
+/* 发光（drop-shadow 贴合元素实际形状，自定义颜色 --hover-color） */
+.aether-hover-glow > * {
+  transition: filter 0.28s ease;
+}
+.aether-hover-glow:hover > *,
+.aether-hover-glow.aether-hover-preview > * {
+  filter:
+    drop-shadow(0 0 var(--hover-glow-near, 9px) color-mix(in srgb, var(--hover-color, #38bdf8) var(--hover-glow-near-mix, 52.5%), transparent))
+    drop-shadow(0 0 var(--hover-glow-far, 26px) color-mix(in srgb, var(--hover-color, #38bdf8) var(--hover-glow-far-mix, 47%), transparent));
+}
+
+/* 描边高亮（4 向标准 drop-shadow 组合成贴合形状的彩色轮廓） */
+.aether-hover-outline > * {
+  transition: filter 0.28s ease;
+}
+.aether-hover-outline:hover > *,
+.aether-hover-outline.aether-hover-preview > * {
+  filter:
+    drop-shadow(var(--hover-outline-width-neg, -2px) 0 0 var(--hover-outline-color, var(--hover-color, #38bdf8)))
+    drop-shadow(var(--hover-outline-width, 2px) 0 0 var(--hover-outline-color, var(--hover-color, #38bdf8)))
+    drop-shadow(0 var(--hover-outline-width-neg, -2px) 0 var(--hover-outline-color, var(--hover-color, #38bdf8)))
+    drop-shadow(0 var(--hover-outline-width, 2px) 0 var(--hover-outline-color, var(--hover-color, #38bdf8)))
+    drop-shadow(0 0 var(--hover-outline-glow, 8px) color-mix(in srgb, var(--hover-color, #38bdf8) var(--hover-outline-mix, 44%), transparent));
+}
+
+/* 扫光：光带置于内容子元素内部划过。
+   对形状元素（内容子元素带 clip-path / overflow-hidden）会被裁剪 → 严格贴合实际轮廓；
+   对文字 / 图片 / 视频则贴合元素边界与圆角。 */
+
+/* 提亮（filter brightness 作用于内容子元素，透明区域不受影响 → 贴合元素实际形状） */
+.aether-hover-brighten > * {
+  transition: filter 0.28s ease;
+}
+.aether-hover-brighten:hover > *,
+.aether-hover-brighten.aether-hover-preview > * {
+  filter: brightness(var(--hover-brightness, 1.2)) saturate(var(--hover-saturate, 1.09));
+}
+
+/* Direct morph keeps the existing layer highlighted while the pointer remains on it. */
+.aether-direct-morph-hover {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: filter 180ms ease-out;
+}
+
+.aether-direct-morph-hover::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: -34%;
+  width: 42%;
+  z-index: 8;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--hover-color, #38bdf8) 8%, transparent) 18%,
+    color-mix(in srgb, #ffffff 12%, var(--hover-color, #38bdf8)) 50%,
+    color-mix(in srgb, var(--hover-color, #38bdf8) 8%, transparent) 82%,
+    transparent 100%
+  );
+  filter: blur(18px);
+  mix-blend-mode: screen;
+  transform: skewX(-14deg) translate3d(0, 0, 0);
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.aether-direct-morph-hover:hover::after {
+  animation: aether-direct-morph-sweep 1.65s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+@keyframes aether-direct-morph-sweep {
+  0%, 12% {
+    opacity: 0;
+    transform: skewX(-14deg) translate3d(0, 0, 0);
+  }
+  24% {
+    opacity: 0.2;
+  }
+  42% {
+    opacity: 0.32;
+  }
+  62% {
+    opacity: 0.18;
+  }
+  78%, 100% {
+    opacity: 0;
+    transform: skewX(-14deg) translate3d(660%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aether-direct-morph-hover::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Lightweight per-layer chromatic ripple. The overlay is composited above the
+   layer and does not require a second copy of the media or a full-scene redraw. */
+.aether-interaction-ripple {
+  position: absolute;
+  inset: -8%;
+  pointer-events: none;
+  z-index: 8;
+  overflow: visible;
+  border-radius: inherit;
+}
+.aether-interaction-ripple::before,
+.aether-interaction-ripple::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  right: auto;
+  bottom: auto;
+  border-radius: 9999px;
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.88);
+  transform-origin: center;
+  left: var(--effect-origin-x, 50%);
+  top: var(--effect-origin-y, 50%);
+  width: 100%;
+  height: 100%;
+  animation: aether-chromatic-ripple var(--ripple-duration, 650ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.aether-interaction-ripple::before {
+  border: 2px solid var(--ripple-color, #38bdf8);
+  box-shadow: 0 0 12px var(--ripple-color, #38bdf8), inset 0 0 12px color-mix(in srgb, var(--ripple-color, #38bdf8) 35%, transparent);
+}
+.aether-interaction-ripple::after {
+  border: 2px solid #ff3b81;
+  box-shadow: 0 0 12px #ff3b81, inset 0 0 10px rgba(255,59,129,.25);
+  animation-delay: 35ms;
+}
+.aether-interaction-ripple--continuous::before,
+.aether-interaction-ripple--continuous::after {
+  animation-iteration-count: infinite;
+}
+@keyframes aether-chromatic-ripple {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.88); filter: hue-rotate(0deg); }
+  12% { opacity: var(--ripple-intensity, 0.65); }
+  72% { opacity: calc(var(--ripple-intensity, 0.65) * 0.62); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.14); filter: hue-rotate(35deg); }
+}
+
+.aether-focus-halo,
+.aether-edge-scan,
+.aether-data-flow,
+.aether-hologram-flicker {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 8;
+  border-radius: inherit;
+  contain: paint;
+}
+
+.aether-focus-halo {
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--effect-origin-x, 50%) var(--effect-origin-y, 50%),
+    color-mix(in srgb, var(--focus-color, #38bdf8) 32%, transparent) 0,
+    color-mix(in srgb, var(--focus-color, #38bdf8) 10%, transparent) calc(var(--focus-radius, 70%) * 0.34),
+    transparent var(--focus-radius, 70%)
+  );
+  mix-blend-mode: screen;
+  transform-origin: var(--effect-origin-x, 50%) var(--effect-origin-y, 50%);
+  animation: aether-focus-halo var(--effect-duration, 650ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.aether-focus-halo--continuous { animation-iteration-count: infinite; }
+@keyframes aether-focus-halo {
+  0% { opacity: 0; transform: scale(0.7); }
+  24% { opacity: var(--focus-intensity, 0.5); }
+  100% { opacity: 0; transform: scale(1.16); }
+}
+
+/* 边缘扫描：商业级特效规范。
+   禁止在外层 bounding-box 上绘制生硬矩形边框与内阴影（彻底消除在文字/形状图层上出现的蓝色矩形框）；
+   真实边缘发光由容器级 drop-shadow 紧密贴合文字路径与透明像素轮廓，光束以屏幕混合模式划过。 */
+.aether-edge-scan {
+  opacity: calc(var(--edge-intensity, 0.5) * 0.82);
+  border: none !important;
+  box-shadow: none !important;
+  mix-blend-mode: screen;
+}
+.aether-edge-scan::after {
+  content: '';
+  position: absolute;
+  top: -45%;
+  bottom: -45%;
+  left: -24%;
+  width: 18%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--edge-color, #38bdf8) 76%, transparent), rgba(255,255,255,0.74), transparent);
+  filter: blur(3px);
+  transform: skewX(-18deg) translate3d(0, 0, 0);
+  animation: aether-edge-scan var(--effect-duration, 650ms) cubic-bezier(0.2, 0.78, 0.24, 1) forwards;
+}
+.aether-edge-scan--continuous::after { animation-iteration-count: infinite; }
+@keyframes aether-edge-scan {
+  0% { opacity: 0; transform: skewX(-18deg) translate3d(0, 0, 0); }
+  20% { opacity: var(--edge-intensity, 0.5); }
+  76% { opacity: calc(var(--edge-intensity, 0.5) * 0.72); }
+  100% { opacity: 0; transform: skewX(-18deg) translate3d(760%, 0, 0); }
+}
+
+/* 专用于文字图层的路径级边缘扫描辉光，严格贴合文字字形笔画与轮廓 */
+.aether-text-edge-scan {
+  animation: aether-text-scan-pulse var(--effect-duration, 650ms) cubic-bezier(0.2, 0.78, 0.24, 1) infinite;
+}
+@keyframes aether-text-scan-pulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 2px color-mix(in srgb, var(--edge-color, #38bdf8) 55%, transparent))
+      drop-shadow(0 0 6px color-mix(in srgb, var(--edge-color, #38bdf8) 35%, transparent));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 3px var(--edge-color, #38bdf8))
+      drop-shadow(0 0 10px var(--edge-color, #38bdf8))
+      drop-shadow(0 0 20px color-mix(in srgb, var(--edge-color, #38bdf8) 85%, white));
+  }
+}
+
+.aether-data-flow {
+  opacity: calc(var(--data-flow-intensity, 0.5) * 0.9);
+  mix-blend-mode: screen;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--data-flow-color, #38bdf8) 8%, transparent) 26%,
+    color-mix(in srgb, var(--data-flow-color, #38bdf8) 32%, transparent) 50%,
+    color-mix(in srgb, var(--data-flow-color, #38bdf8) 8%, transparent) 74%,
+    transparent 100%);
+  background-size: 220% 100%;
+  animation: aether-data-flow-surface var(--effect-duration, 1100ms) linear infinite;
+}
+.aether-data-flow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.56;
+  background: repeating-linear-gradient(90deg,
+    transparent 0 11%,
+    color-mix(in srgb, var(--data-flow-color, #38bdf8) 28%, transparent) 12% 13%,
+    transparent 14% 25%);
+  background-size: 180% 100%;
+  animation: aether-data-flow-surface var(--effect-duration, 1100ms) linear infinite reverse;
+}
+.aether-data-flow i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  display: block;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    transparent 34%,
+    color-mix(in srgb, var(--data-flow-color, #38bdf8) 58%, transparent) 46%,
+    rgba(255,255,255,0.58) 50%,
+    color-mix(in srgb, var(--data-flow-color, #38bdf8) 58%, transparent) 54%,
+    transparent 66%,
+    transparent 100%);
+  background-size: 210% 100%;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--data-flow-color, #38bdf8) 44%, transparent);
+  animation: aether-data-flow-lane var(--effect-duration, 1100ms) linear infinite;
+}
+.aether-data-flow i:nth-child(1) { top: 23%; }
+.aether-data-flow i:nth-child(2) { top: 50%; animation-delay: -360ms; opacity: 0.72; }
+.aether-data-flow i:nth-child(3) { top: 77%; animation-delay: -720ms; opacity: 0.48; }
+@keyframes aether-data-flow-surface {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+@keyframes aether-data-flow-lane {
+  from { background-position: 110% 0; }
+  to { background-position: -110% 0; }
+}
+
+.aether-hologram-flicker {
+  opacity: calc(var(--hologram-intensity, 0.5) * 0.72);
+  mix-blend-mode: screen;
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--hologram-color, #38bdf8) 26%, transparent) 0 1px,
+    transparent 1px 4px
+  );
+  animation: aether-hologram-flicker var(--effect-duration, 900ms) steps(2, end) infinite;
+}
+.aether-hologram-flicker::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--hologram-color, #38bdf8) 34%, transparent), transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--hologram-color, #38bdf8) 38%, transparent);
+  transform: translate3d(0, -130%, 0);
+  animation: aether-hologram-scan var(--effect-duration, 900ms) linear infinite;
+}
+@keyframes aether-hologram-flicker {
+  0%, 100% { opacity: calc(var(--hologram-intensity, 0.5) * 0.58); }
+  32% { opacity: calc(var(--hologram-intensity, 0.5) * 0.82); }
+  34% { opacity: calc(var(--hologram-intensity, 0.5) * 0.42); }
+  38% { opacity: calc(var(--hologram-intensity, 0.5) * 0.74); }
+}
+@keyframes aether-hologram-scan {
+  to { transform: translate3d(0, 660%, 0); }
+}
+
+/* Second-stage interaction effects stay inside the owning layer. They use a
+   small number of composited pseudo/child layers instead of copying media or
+   sampling the full canvas, which keeps preview interaction inexpensive. */
+.aether-liquid-droplets,
+.aether-glass-refraction,
+.aether-depth-focus {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+  border-radius: inherit;
+  contain: paint;
+}
+
+.aether-liquid-droplets {
+  opacity: var(--liquid-intensity, 0.52);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--liquid-color, #b7f3ff) 8%, transparent), transparent 52%);
+  clip-path: ellipse(var(--liquid-radius, 44%) var(--liquid-radius, 44%) at center);
+}
+.aether-liquid-droplets i {
+  position: absolute;
+  display: block;
+  width: clamp(18px, 15%, 64px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--liquid-color, #b7f3ff) 38%, rgba(255,255,255,0.8));
+  background:
+    radial-gradient(ellipse at 28% 23%, rgba(255,255,255,0.92) 0 4%, rgba(255,255,255,0.22) 9%, transparent 19%),
+    radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--liquid-color, #b7f3ff) 16%, transparent) 0 43%, rgba(255,255,255,0.025) 61%, transparent 73%),
+    radial-gradient(circle at 66% 70%, rgba(1, 12, 26, 0.3) 0, transparent 53%);
+  box-shadow:
+    inset 2px 2px 3px rgba(255,255,255,0.26),
+    inset -5px -7px 10px rgba(2, 16, 31, 0.28),
+    0 2px 8px rgba(0,0,0,0.22);
+  transform: translate3d(0, 0, 0) scale(var(--drop-scale, 0.75));
+  opacity: 0;
+  animation: aether-liquid-droplet var(--effect-duration, 1800ms) cubic-bezier(0.33, 0.02, 0.2, 1) infinite;
+}
+.aether-liquid-droplets i::before,
+.aether-liquid-droplets i::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.aether-liquid-droplets i::before {
+  inset: 12%;
+  border-top: 1px solid rgba(255,255,255,0.48);
+  border-left: 1px solid rgba(255,255,255,0.22);
+  opacity: 0.78;
+}
+.aether-liquid-droplets i::after {
+  inset: 20%;
+  background: radial-gradient(circle at 62% 64%, color-mix(in srgb, var(--liquid-color, #b7f3ff) 48%, transparent), transparent 58%);
+  filter: blur(2px);
+  opacity: 0.55;
+}
+.aether-liquid-droplets i:nth-child(1) { left: 21%; top: 29%; --drop-scale: 0.92; animation-delay: -0.22s; }
+.aether-liquid-droplets i:nth-child(2) { left: 61%; top: 24%; --drop-scale: 0.56; animation-delay: -0.84s; }
+.aether-liquid-droplets i:nth-child(3) { left: 42%; top: 60%; --drop-scale: 0.72; animation-delay: -1.26s; }
+.aether-liquid-droplets i:nth-child(4) { left: 74%; top: 62%; --drop-scale: 0.38; animation-delay: -1.58s; }
+.aether-liquid-droplets--continuous i { animation-play-state: running; }
+@keyframes aether-liquid-droplet {
+  0%, 100% { opacity: 0; transform: translate3d(-2px, 8px, 0) scale(calc(var(--drop-scale, 0.75) * 0.86)); }
+  18% { opacity: 0.76; }
+  52% { opacity: 0.58; transform: translate3d(2px, -2px, 0) scale(var(--drop-scale, 0.75)); }
+  78% { opacity: 0.12; transform: translate3d(5px, -7px, 0) scale(calc(var(--drop-scale, 0.75) * 0.92)); }
+}
+
+.aether-glass-refraction {
+  background:
+    radial-gradient(ellipse at 22% 12%, rgba(255,255,255,0.16), transparent 31%),
+    linear-gradient(128deg, color-mix(in srgb, var(--glass-color, #b7f3ff) 8%, transparent), transparent 38%, rgba(255,255,255,0.06) 54%, transparent 72%);
+  border: 1px solid color-mix(in srgb, var(--glass-color, #b7f3ff) 20%, rgba(255,255,255,0.18));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.12);
+  opacity: var(--glass-intensity, 0.42);
+  backdrop-filter: saturate(1.1) contrast(1.03) blur(0.6px);
+  -webkit-backdrop-filter: saturate(1.1) contrast(1.03) blur(0.6px);
+  transform: translate3d(0, 0, 0);
+  clip-path: circle(var(--glass-radius, 49%) at center);
+}
+.aether-glass-refraction::before,
+.aether-glass-refraction::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+.aether-glass-refraction::before {
+  inset: 9%;
+  border: 1px solid color-mix(in srgb, var(--glass-color, #b7f3ff) 16%, transparent);
+  border-left-color: rgba(255,255,255,0.32);
+  border-top-color: rgba(255,255,255,0.42);
+  border-radius: inherit;
+  opacity: 0.6;
+}
+.aether-glass-refraction::after {
+  top: -35%;
+  bottom: -35%;
+  left: -28%;
+  width: 19%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), color-mix(in srgb, var(--glass-color, #b7f3ff) 22%, transparent), transparent);
+  filter: blur(8px);
+  opacity: 0;
+  transform: skewX(-16deg) translate3d(0,0,0);
+  animation: aether-glass-refraction var(--effect-duration, 2800ms) cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+.aether-glass-refraction--continuous { animation-play-state: running; }
+@keyframes aether-glass-refraction {
+  0%, 18% { opacity: 0; transform: skewX(-16deg) translate3d(0,0,0); }
+  34% { opacity: 0.65; }
+  62% { opacity: 0.35; }
+  82%, 100% { opacity: 0; transform: skewX(-16deg) translate3d(680%,0,0); }
+}
+
+.aether-depth-focus {
+  background: radial-gradient(
+    circle at center,
+    transparent 0 var(--depth-radius, 24%),
+    rgba(2, 8, 23, 0.02) calc(var(--depth-radius, 24%) + 6%),
+    rgba(2, 8, 23, 0.16) calc(var(--depth-radius, 24%) + 22%),
+    rgba(2, 8, 23, 0.28) 100%
+  );
+  opacity: var(--depth-intensity, 0.38);
+  backdrop-filter: blur(1.8px) saturate(0.94);
+  -webkit-backdrop-filter: blur(1.8px) saturate(0.94);
+  mask-image: radial-gradient(circle at center, transparent 0 var(--depth-radius, 24%), black calc(var(--depth-radius, 24%) + 16%), black 100%);
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 var(--depth-radius, 24%), black calc(var(--depth-radius, 24%) + 16%), black 100%);
+  animation: aether-depth-focus var(--effect-duration, 2200ms) ease-in-out infinite;
+}
+.aether-depth-focus::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--depth-diameter, 48%);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(255,255,255,0.06), inset 0 0 12px rgba(255,255,255,0.04);
+  transform: translate(-50%, -50%);
+  opacity: 0.42;
+}
+.aether-depth-focus--continuous { animation-play-state: running; }
+@keyframes aether-depth-focus {
+  0%, 100% { opacity: calc(var(--depth-intensity, 0.38) * 0.78); }
+  50% { opacity: var(--depth-intensity, 0.38); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aether-interaction-ripple::before,
+  .aether-interaction-ripple::after {
+    animation: none;
+    opacity: 0;
+  }
+  .aether-liquid-droplets i,
+  .aether-glass-refraction,
+  .aether-depth-focus,
+  .aether-focus-halo,
+  .aether-edge-scan::after,
+  .aether-data-flow,
+  .aether-data-flow::before,
+  .aether-data-flow i,
+  .aether-hologram-flicker,
+  .aether-hologram-flicker::after {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   弹窗主题系统（popup 转场弹窗外观）
+   用法：容器加 .popup-theme-popup .popup-theme-<主题>，
+   标题栏 .popup-theme-header，标题文字 .popup-theme-title。
+   自定义覆盖通过 inline style 优先（背景 / 边框 / 发光 / 圆角 / 标题色）。
+   ============================================================ */
+.popup-theme-popup {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.popup-theme-popup * {
+  box-sizing: border-box;
+}
+.popup-theme-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+.popup-theme-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+/* 主题强调装饰线（标题左侧） */
+.popup-theme-accent-bar {
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--popup-accent, #38bdf8);
+  box-shadow: 0 0 8px var(--popup-accent, #38bdf8);
+  flex-shrink: 0;
+}
+
+/* —— 默认深色（默认款保持“纯场景”：无边框，避免弹窗边框干扰场景内容）—— */
+.popup-theme-default {
+  background: linear-gradient(160deg, #161b29, #0d1017);
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* —— 霓虹（Neon）—— */
+.popup-theme-neon {
+  background: linear-gradient(160deg, #0a1020, #060810);
+  border: 1px solid rgba(34, 211, 238, 0.75);
+  border-radius: 16px;
+  box-shadow:
+    0 0 28px rgba(34, 211, 238, 0.35),
+    inset 0 0 46px rgba(34, 211, 238, 0.07);
+}
+.popup-theme-neon .popup-theme-header {
+  border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+  background: rgba(34, 211, 238, 0.06);
+}
+
+/* —— 赛博朋克（Cyberpunk）—— */
+.popup-theme-cyberpunk {
+  background: linear-gradient(160deg, #14051f, #05030d);
+  border: 1px solid #ff2d95;
+  border-radius: 6px;
+  box-shadow:
+    0 0 32px rgba(255, 45, 149, 0.42),
+    inset 0 0 34px rgba(0, 229, 255, 0.08);
+}
+/* 赛博角标装饰 */
+.popup-theme-cyberpunk::before,
+.popup-theme-cyberpunk::after {
+  content: '';
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--popup-accent, #00e5ff);
+  pointer-events: none;
+  z-index: 2;
+}
+.popup-theme-cyberpunk::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+.popup-theme-cyberpunk::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+.popup-theme-cyberpunk .popup-theme-header {
+  border-bottom: 1px solid rgba(255, 45, 149, 0.3);
+  background: linear-gradient(90deg, rgba(255, 45, 149, 0.12), rgba(0, 229, 255, 0.08));
+}
+
+/* —— 全息玻璃（Glass）—— */
+.popup-theme-glass {
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 22px;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+.popup-theme-glass .popup-theme-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* —— 全息投影（Hologram）—— */
+.popup-theme-hologram {
+  background: linear-gradient(
+    160deg,
+    rgba(56, 189, 248, 0.18),
+    rgba(168, 85, 247, 0.16),
+    rgba(255, 255, 255, 0.05)
+  );
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  border-radius: 18px;
+  box-shadow:
+    0 0 36px rgba(56, 189, 248, 0.32),
+    0 0 70px rgba(168, 85, 247, 0.2),
+    inset 0 0 50px rgba(56, 189, 248, 0.06);
+}
+.popup-theme-hologram .popup-theme-header {
+  border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+/* —— 奢华金（Luxury）—— */
+.popup-theme-luxury {
+  background: linear-gradient(160deg, #1b1407, #0a0804);
+  border: 1px solid #d4af37;
+  border-radius: 12px;
+  box-shadow:
+    0 0 44px rgba(212, 175, 55, 0.26),
+    inset 0 0 34px rgba(212, 175, 55, 0.06);
+}
+.popup-theme-luxury .popup-theme-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.14), transparent);
+}
+
+/* —— 极简白（Minimal）—— */
+.popup-theme-minimal {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
+}
+.popup-theme-minimal .popup-theme-header {
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfc;
+}
+.popup-theme-minimal .popup-theme-title {
+  color: #0f172a;
+}
+
+/* —— 商务蓝（Corporate）—— */
+.popup-theme-corporate {
+  background: linear-gradient(160deg, #0a1a3a, #081226);
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  border-radius: 12px;
+  box-shadow:
+    0 0 32px rgba(59, 130, 246, 0.26),
+    inset 0 0 40px rgba(59, 130, 246, 0.05);
+}
+.popup-theme-corporate .popup-theme-header {
+  border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* —— 无弹窗样式（全屏沉浸 Immersive）—— */
+.popup-theme-immersive {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.popup-theme-immersive .popup-theme-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 22px 30px;
+  border-bottom: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+.popup-theme-immersive .popup-theme-header > * {
+  pointer-events: auto;
+}
+.popup-theme-immersive .popup-theme-title {
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+}
+.popup-theme-immersive .popup-theme-accent-bar {
+  width: 4px;
+  height: 18px;
+}
+.popup-theme-immersive .popup-theme-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.popup-theme-immersive .popup-theme-close:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: scale(1.06);
+}
+.popup-theme-immersive .popup-theme-close:active {
+  transform: scale(0.94);
+}
+
+/* —— 浮层卡片（Popover）—— */
+.popup-popover-card {
+  overflow: hidden;
+}
+.popup-popover-card .popup-theme-header {
+  padding: 10px 14px;
+}
+
+/* —— 原地展开（Inline）：热点放大高亮 —— */
+.inline-expanded-popup {
+  transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2), outline 0.3s ease, box-shadow 0.3s ease;
+  outline: 2px solid var(--popup-accent, #38bdf8);
+  outline-offset: 6px;
+  border-radius: inherit;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 40px color-mix(in srgb, var(--popup-accent, #38bdf8) 45%, transparent);
+}
+.popup-inline-card {
+  overflow: hidden;
+}
+.popup-inline-card .popup-theme-header {
+  padding: 10px 14px;
+}
+
+/* 弹窗关闭按钮（随主题柔和） */
+.popup-theme-close {
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.popup-theme-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+.popup-theme-minimal .popup-theme-close {
+  color: rgba(15, 23, 42, 0.5);
+}
+.popup-theme-minimal .popup-theme-close:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+/* ============================================================
+   高级感弹窗动画（方案A）：定制缓动 + 复合变换 + 质感光边
+   —— 每种动画都叠加 opacity + 位移/缩放 + 轻微模糊（从虚到实），
+      用 easeOutExpo / easeOutQuint / easeOutCubic 高级缓动曲线制造「物理重量感」；
+   —— 出场动画干净利落：反向运动 + 淡出 + 轻微模糊收尾；
+   —— 入场附带极淡的科技光边（闪现后消失，不破坏主题的边框/阴影语义）。
+   ============================================================ */
+.aether-popup-anim {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* —— 淡入 —— */
+@keyframes aether-popup-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.aether-popup-fade-in { animation-name: aether-popup-fade-in; }
+@keyframes aether-popup-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.aether-popup-fade-out { animation-name: aether-popup-fade-out; }
+
+/* —— 上浮 —— */
+@keyframes aether-popup-slide-up-in {
+  from { opacity: 0; transform: translate3d(0, 42px, 0) scale(0.975); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+.aether-popup-slide-up-in { animation-name: aether-popup-slide-up-in; }
+@keyframes aether-popup-slide-up-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, -30px, 0) scale(0.985); }
+}
+.aether-popup-slide-up-out { animation-name: aether-popup-slide-up-out; }
+
+/* —— 下落 —— */
+@keyframes aether-popup-slide-down-in {
+  from { opacity: 0; transform: translate3d(0, -42px, 0) scale(0.975); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+.aether-popup-slide-down-in { animation-name: aether-popup-slide-down-in; }
+@keyframes aether-popup-slide-down-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, 30px, 0) scale(0.985); }
+}
+.aether-popup-slide-down-out { animation-name: aether-popup-slide-down-out; }
+
+/* —— 左滑 —— */
+@keyframes aether-popup-slide-left-in {
+  from { opacity: 0; transform: translate3d(52px, 0, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+.aether-popup-slide-left-in { animation-name: aether-popup-slide-left-in; }
+@keyframes aether-popup-slide-left-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(-36px, 0, 0) scale(0.99); }
+}
+.aether-popup-slide-left-out { animation-name: aether-popup-slide-left-out; }
+
+/* —— 右滑 —— */
+@keyframes aether-popup-slide-right-in {
+  from { opacity: 0; transform: translate3d(-52px, 0, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+.aether-popup-slide-right-in { animation-name: aether-popup-slide-right-in; }
+@keyframes aether-popup-slide-right-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(36px, 0, 0) scale(0.99); }
+}
+.aether-popup-slide-right-out { animation-name: aether-popup-slide-right-out; }
+
+/* —— 放大（从小到大进入）—— */
+@keyframes aether-popup-zoom-in-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.aether-popup-zoom-in-in { animation-name: aether-popup-zoom-in-in; }
+@keyframes aether-popup-zoom-in-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.94); }
+}
+.aether-popup-zoom-in-out { animation-name: aether-popup-zoom-in-out; }
+
+/* —— 缩小（从大到小进入）—— */
+@keyframes aether-popup-zoom-out-in {
+  from { opacity: 0; transform: scale(1.1); }
+  to { opacity: 1; transform: scale(1); }
+}
+.aether-popup-zoom-out-in { animation-name: aether-popup-zoom-out-in; }
+@keyframes aether-popup-zoom-out-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.05); }
+}
+.aether-popup-zoom-out-out { animation-name: aether-popup-zoom-out-out; }
+
+/* —— 弹性 —— */
+@keyframes aether-popup-bounce-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  58% { opacity: 1; transform: scale(1.025); }
+  78% { transform: scale(0.992); }
+  100% { transform: scale(1); }
+}
+.aether-popup-bounce-in { animation-name: aether-popup-bounce-in; }
+@keyframes aether-popup-bounce-out {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.96); }
+}
+.aether-popup-bounce-out { animation-name: aether-popup-bounce-out; }
+
+/* —— 旋转 —— */
+@keyframes aether-popup-rotate-in {
+  from { opacity: 0; transform: rotate(-4deg) scale(0.96); }
+  to { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+.aether-popup-rotate-in { animation-name: aether-popup-rotate-in; }
+@keyframes aether-popup-rotate-out {
+  from { opacity: 1; transform: rotate(0deg) scale(1); }
+  to { opacity: 0; transform: rotate(3deg) scale(0.98); }
+}
+.aether-popup-rotate-out { animation-name: aether-popup-rotate-out; }
+
+/* —— 高级缓动曲线 —— */
+.aether-popup-ease-expo { animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+.aether-popup-ease-quint { animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+.aether-popup-ease-cubic { animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+
+@keyframes aether-popup-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes aether-popup-overlay-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aether-popup-anim,
+  .aether-popup-glow::before {
+    animation-duration: 1ms !important;
+  }
+}
+
+/* —— 入场科技光边（闪现后消失，不改变主题的边框/阴影语义；overflow:hidden 由 box-shadow 外发光承载）—— */
+.aether-popup-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 6;
+  box-shadow:
+    0 0 24px rgba(56, 189, 248, 0.40),
+    inset 0 0 14px rgba(56, 189, 248, 0.08);
+  opacity: 0;
+  animation: aether-popup-glow-pulse 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes aether-popup-glow-pulse {
+  0% { opacity: 0; }
+  28% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Shared shape finish for library previews and canvas surfaces. */
+.aether-shape-surface {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.aether-shape-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 34%, transparent 70%, rgba(255, 255, 255, 0.06));
+  mix-blend-mode: screen;
+  opacity: 0.72;
+}
+
+.aether-shape-surface::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: 2;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 18px rgba(125, 211, 252, 0.08);
+}
+
+/* A clipped polygon already owns its silhouette. A second clipped border is
+   rasterized as a soft halo at non-integer canvas zoom levels. */
+.aether-shape-surface--clipped::after {
+  display: none;
+}
+
+/* Aether workstation chrome: one quiet visual language for the editor shell.
+   The selectors are intentionally scoped so authored scene elements and the
+   existing manual editing surfaces keep their current appearance. */
+:root {
+  --aether-bg: #080c12;
+  --aether-surface: #0d131b;
+  --aether-surface-raised: #111a24;
+  --aether-border: rgba(177, 203, 224, 0.14);
+  --aether-border-strong: rgba(125, 211, 252, 0.34);
+  --aether-text: #e7eef5;
+  --aether-muted: #8494a5;
+  --aether-accent: #7dd3fc;
+  --aether-accent-strong: #38bdf8;
+  --aether-space-1: 4px;
+  --aether-space-2: 8px;
+  --aether-space-3: 12px;
+  --aether-space-4: 16px;
+  --aether-space-6: 24px;
+  --aether-radius-sm: 4px;
+  --aether-radius-md: 6px;
+  --aether-radius-lg: 10px;
+  --aether-focus-ring: 2px solid var(--aether-accent);
+  color-scheme: dark;
+}
+
+body {
+  min-width: 320px;
+  background: var(--aether-bg);
+  color: var(--aether-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+
+/* Project manager: a calm command surface for the first interaction. */
+.project-manager-overlay {
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(4, 8, 14, 0.78);
+}
+
+.project-manager-dialog {
+  max-width: 1120px;
+  /* The shell's 44px menu bar remains visible and independently usable. */
+  height: min(820px, calc(100dvh - 84px));
+  border-color: rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #111a26 0%, #0c121b 68%, #0a1017 100%);
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.58), 0 0 0 1px rgba(125, 211, 252, 0.06);
+}
+
+.project-manager-dialog > div:first-child {
+  min-height: 78px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.project-manager-dialog > div:nth-child(2) {
+  min-height: 64px;
+  background: rgba(2, 6, 12, 0.26);
+}
+
+.project-manager-card {
+  content-visibility: auto;
+  contain: layout paint style;
+  contain-intrinsic-size: auto 238px;
+  border-color: rgba(148, 163, 184, 0.16) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.project-manager-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.52) !important;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24), 0 0 0 1px rgba(56, 189, 248, 0.12);
+}
+
+.project-manager-card:focus-within {
+  outline: 2px solid rgba(125, 211, 252, 0.7);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .project-manager-overlay { padding: 10px; }
+  .project-manager-dialog {
+    height: calc(100dvh - 64px);
+    border-radius: 14px;
+  }
+  .project-manager-dialog > div:first-child,
+  .project-manager-dialog > div:nth-child(2) {
+    padding-inline: 16px;
+  }
+  .project-manager-dialog > div:nth-child(2) {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .project-manager-dialog > div:nth-child(2) > div:last-child {
+    width: 100%;
+  }
+  .project-manager-dialog > div:nth-child(2) input {
+    width: 100%;
+  }
+}
+
+.aether-app-shell {
+  background: var(--aether-bg) !important;
+}
+
+.aether-chrome-header {
+  background: var(--aether-surface) !important;
+  border-color: var(--aether-border) !important;
+}
+
+.aether-chrome-header button,
+.aether-workstation-toolbar button {
+  border-radius: 6px;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.aether-chrome-header button:focus-visible,
+.aether-workstation-toolbar button:focus-visible,
+.aether-menu-item:focus-visible,
+.aether-ai-dialog button:focus-visible,
+.aether-ai-dialog input:focus-visible,
+.aether-ai-dialog select:focus-visible,
+.aether-ai-dialog textarea:focus-visible {
+  outline: var(--aether-focus-ring);
+  outline-offset: 2px;
+}
+
+.aether-menu-surface {
+  background: var(--aether-surface-raised) !important;
+  border-color: var(--aether-border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42) !important;
+}
+
+.aether-menu-item {
+  min-height: 36px;
+  border-radius: 4px !important;
+}
+
+.aether-workstation-toolbar {
+  background: #0b1118 !important;
+  border-color: var(--aether-border) !important;
+  overflow: visible !important;
+  scrollbar-width: none;
+}
+
+.aether-workstation-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.aether-workspace-scroll,
+.aether-timeline-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-color: rgba(100, 116, 139, 0.75) transparent;
+}
+
+.aether-workspace--expanded,
+.aether-timeline-workspace {
+  min-width: 1120px;
+}
+
+.aether-empty-canvas {
+  position: absolute;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.aether-empty-canvas__card {
+  width: min(300px, 100%);
+  padding: 16px 18px 13px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  background: #242a35;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  text-align: center;
+  pointer-events: auto;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.aether-empty-canvas__card:hover {
+  border-color: rgba(125, 211, 252, 0.4);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(56, 189, 248, 0.07);
+}
+
+.aether-empty-canvas__import {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 32px;
+  margin: 0 auto;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #f3f7fb;
+  cursor: pointer;
+  font: inherit;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.aether-empty-canvas__import:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.aether-empty-canvas__import:focus-visible,
+.aether-empty-canvas__actions button:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 3px;
+}
+
+.aether-empty-canvas__plus {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #10cfe3;
+  color: #10212a;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(16, 207, 227, 0.22);
+}
+
+.aether-empty-canvas__title {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.aether-empty-canvas__description {
+  max-width: 250px;
+  margin: 7px auto 0;
+  color: #9eb5d0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.aether-empty-canvas__actions {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin: 10px 0 0;
+}
+
+.aether-empty-canvas__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.24);
+  color: #b7c6d8;
+  font-size: 11px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.aether-empty-canvas__actions button:hover {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.1);
+  color: #ecf7ff;
+}
+
+.aether-empty-canvas__hint {
+  display: block;
+  margin-top: 9px;
+  color: #7f91a8;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+@media (max-width: 560px) {
+  .aether-empty-canvas { padding: 12px; }
+  .aether-empty-canvas__card { padding: 14px 12px 11px; }
+  .aether-empty-canvas__description { font-size: 11px; }
+  .aether-empty-canvas__actions { gap: 5px; margin-top: 8px; }
+  .aether-empty-canvas__actions button { min-height: 25px; padding-inline: 8px; }
+}
+
+.aether-timeline__transport { min-height: 44px; }
+.aether-timeline__transport-group { min-height: 40px; }
+.aether-timeline__transport-group button { min-height: 30px; }
+.aether-timeline__transport-group .text-\[10px\] { font-size: 11px; }
+.aether-timeline-workspace .text-\[9px\],
+.aether-timeline-workspace .text-\[10px\] { font-size: 11px; }
+.aether-compact-workspace-hint { display: none; }
+
+.aether-timeline__transport-group {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1100px) {
+  .aether-timeline__transport {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+}
+
+.aether-toolbar-category__trigger {
+  min-height: 34px;
+  border-color: var(--aether-border) !important;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.aether-toolbar-category__trigger:hover,
+.aether-toolbar-category__trigger[aria-expanded="true"] {
+  border-color: var(--aether-border-strong) !important;
+  background: rgba(125, 211, 252, 0.09) !important;
+  color: var(--aether-text);
+}
+
+.aether-ai-dialog {
+  background: rgba(3, 7, 12, 0.82) !important;
+}
+
+.aether-ai-dialog__shell {
+  border-color: var(--aether-border) !important;
+  border-radius: 10px;
+  background: #0a1017 !important;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.aether-ai-dialog__shell::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(125, 211, 252, 0.58), rgba(196, 181, 253, 0.22) 48%, transparent 82%);
+}
+
+.aether-ai-dialog input,
+.aether-ai-dialog select,
+.aether-ai-dialog textarea {
+  border-radius: 6px;
+}
+
+.aether-dialog-close:hover {
+  border-color: var(--aether-border-strong) !important;
+  background: rgba(125, 211, 252, 0.09) !important;
+}
+
+@media (max-width: 1199px) {
+  .aether-chrome-header {
+    padding-inline: 6px !important;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+  }
+
+  .aether-chrome-header::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .aether-chrome-header::-webkit-scrollbar-thumb {
+    background: rgba(125, 211, 252, 0.42);
+    border-radius: 999px;
+  }
+
+  .aether-chrome-header {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(125, 211, 252, 0.42) transparent;
+  }
+
+  .aether-chrome-header > div:first-of-type,
+  .aether-chrome-header > div:last-of-type {
+    flex: 0 0 auto;
+  }
+
+  .aether-chrome-header > div:first-of-type {
+    min-width: max-content;
+  }
+
+  .aether-chrome-header > div:first-of-type button {
+    white-space: nowrap;
+  }
+
+  .aether-workstation-toolbar {
+    padding-inline: 8px !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(125, 211, 252, 0.42) transparent;
+  }
+
+  .aether-workstation-toolbar::-webkit-scrollbar {
+    height: 3px;
+    display: block;
+  }
+
+  .aether-workstation-toolbar::-webkit-scrollbar-thumb {
+    background: rgba(125, 211, 252, 0.42);
+    border-radius: 999px;
+  }
+
+  .aether-compact-workspace-hint {
+    display: flex;
+    position: absolute;
+    z-index: 39;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100% - 140px);
+    padding: 7px 9px;
+    border: 1px solid rgba(125, 211, 252, 0.22);
+    border-radius: 7px;
+    background: rgba(10, 16, 24, 0.92);
+    color: #bdcbd8;
+    font-size: 11px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .aether-compact-workspace-hint button {
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 0 9px;
+    border: 1px solid rgba(125, 211, 252, 0.36);
+    border-radius: 5px;
+    background: rgba(14, 165, 233, 0.14);
+    color: #d9f3ff;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .aether-compact-workspace-hint button:focus-visible {
+    outline: 2px solid var(--aether-accent);
+    outline-offset: 2px;
+  }
+
+  .aether-ai-dialog {
+    padding: 8px !important;
+  }
+
+  .aether-ai-dialog__shell {
+    max-height: calc(100dvh - 16px);
+  }
+}
+
+@media (max-width: 560px) {
+  /* Keep the authored 16:9 canvas in the first mobile viewport. The editor
+     remains inspectable without forcing the user to hunt through a centered
+     black workspace before reaching the stage. */
+  .aether-canvas-container--editor,
+  .aether-canvas-viewport--editor {
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 64px;
+  }
+
+  .aether-canvas-viewport--editor > div:first-of-type,
+  .aether-canvas-viewport--editor > div:first-of-type > [data-export-stage="true"] {
+    transform-origin: top center !important;
+  }
+
+  .aether-compact-workspace-hint {
+    top: 52px;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aether-chrome-header *,
+  .aether-workstation-toolbar *,
+  .aether-ai-dialog *,
+  .aether-ai-dialog *::before,
+  .aether-ai-dialog *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* Video player surfaces keep the native volume and seek controls usable while
+   giving uploaded clips a predictable visual treatment. */
+.aether-video-player-none {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.aether-video-player-minimal {
+  border: 1px solid rgba(56, 189, 248, 0.42);
+  background: #07111d;
+}
+.aether-video-player-classic {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #05070b;
+}
+.aether-video-player-cinema {
+  border: 1px solid rgba(244, 114, 182, 0.38);
+  background: #000;
+  box-shadow: 0 0 24px rgba(244, 114, 182, 0.12);
+}
+.aether-panorama-controls {
+  min-height: 44px;
+  background: rgba(3, 8, 18, 0.82);
+  pointer-events: auto;
+}
+.aether-panorama-controls input[type='range'] {
+  min-width: 72px;
+  cursor: pointer;
+}
+
+/* Keep compact viewport controls stable when the toolbar is narrow. */
+[data-viewport-controls="true"] > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+[data-viewport-controls="true"] > button:nth-child(1) { min-width: 72px; }
+[data-viewport-controls="true"] > button:nth-child(2) { min-width: 66px; }
+[data-viewport-controls="true"] > button:nth-child(3) {
+  min-width: 68px;
+  font-variant-numeric: tabular-nums;
+}

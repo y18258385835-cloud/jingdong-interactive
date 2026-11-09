@@ -1,0 +1,56 @@
+鲸动交互平台 (Jingdong / Aether Interactive Platform) 非商业开源许可协议
+Apache License 2.0 with Commons Clause (Non-Commercial Restriction)
+
+Copyright (c) 2026 鲸动交互 (Jingdong Interactive). All rights reserved.
+
+================================================================================
+重要声明（防商业倒卖与闭源商用限制 / Commons Clause Restriction）
+================================================================================
+
+本软件基于 Apache License 2.0 授权，但附加以下 **Commons Clause（非商业限制条款）**：
+
+在未获得版权所有者（鲸动交互）书面商业授权之前，您 **不得** 进行以下任何商业行为：
+1. **禁止直接或间接售卖**：不得将本软件、本软件的修改版（衍生作品）、打包版（含桌面端 EXE/MSIX、容器镜像、源码包）直接或变相出售牟利。
+2. **禁止商业化 SaaS / 托管服务**：不得基于本软件搭建付费网站、付费云服务、付费大屏定制平台或向第三方收取软件使用费、会员费、导出费。
+3. **禁止抹除版权与品牌标识用于商业交付**：不得移除或篡改本软件中的版权声明、署名信息及授权校验机制后用于商业项目交付。
+
+允许的免费使用范围：
+- 个人学习、学术研究、技术交流与非商业性质的个人创作；
+- 在保留完整版权声明与本协议文件的前提下，Fork、修改代码并向本仓库提交贡献（Pull Request）。
+
+如需用于企业内部部署、商业项目交付、OEM 贴牌定制或商业分发，请联系作者获取商业授权。
+
+================================================================================
+Commons Clause License Condition v1.0
+================================================================================
+
+The Software is provided to you by the Licensor under the License, as defined
+below, subject to the following condition.
+
+Without limiting other conditions in the License, the grant of rights under the
+License will not include, and the License does not grant to you, the right to
+Sell the Software.
+
+For purposes of the foregoing, "Sell" means practicing any or all of the rights
+granted to you under the License to provide to third parties, for a fee or
+other consideration (including without limitation fees for hosting or
+consulting/support services related to the Software), a product or service
+whose value derives, entirely or substantially, from the functionality of the
+Software. Any license notice or attribution required by the License must also
+include this Commons Clause License Condition Notice.
+
+================================================================================
+Apache License, Version 2.0 (Underlying License Terms)
+================================================================================
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

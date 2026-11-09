@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>MetalForge VFX 1:1 复刻 · 全特效透明通道演示</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #14151a; color: #eee; margin: 0; padding: 20px; }
+  h1 { font-size: 18px; margin: 0 0 6px; }
+  .sub { font-size: 12px; color: #999; margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card { background: #1d1e26; border: 1px solid #333; border-radius: 10px; overflow: hidden; }
+  .card .head { padding: 8px 12px; font-size: 13px; font-weight: 600; border-bottom: 1px solid #2a2b35; display:flex; justify-content:space-between; align-items:center;}
+  .card .head .fps { color:#4ade80; font-size:11px; }
+  .stage { position: relative; }
+  .stage .checker { position: absolute; inset: 0; background: repeating-conic-gradient(#26272e 0% 25%, #1c1d24 0% 50%) 0 0 / 24px 24px; }
+  canvas { position: relative; width: 100%; height: 150px; display: block; }
+  .params { padding: 8px 12px; font-size: 11px; color: #9aa; border-top: 1px solid #2a2b35; max-height: 120px; overflow:auto; white-space: pre-wrap; line-height:1.5;}
+</style>
+</head>
+<body>
+<h1>MetalForge 特效 1:1 复刻 · 全特效透明通道验证</h1>
+<div class="sub">棋盘格 = 透明区域。所有特效默认无黑色背景、无进度数据（progress=0）。</div>
+<div class="grid" id="grid"></div>
+
+<script src="./metalforge-runtime-latest.js"></script>
+<script>
+const DEFS = [
+  { id: 'progress-liquid', name: '液体进度 Liquid', colors: ['#090B16','#0B194A','#0E4FC7','#42B8FA','#A3EDFF','#1354C2','#338FE0'],
+    params: { progress: 0, speed: 1, scale: 9.5, amount: 0.085, lag: 0.55, echo: 0.055, bloom: 1, jitter: 0.3, frontIn: -0.12, frontOut: 0.12, churn: 1, feather: 1, stagger: 0.18, pulse: 0.28, pulseRate: 3, cellSize: 1, fill: 1, density: 1, turbulence: 1, sparkle: 1, ripple: 1, falloff: 1, trails: 3, trailGlow: 1, haze: 1, vignette: 1, grain: 0.01, aspect: 3.6, corner: 0.144 } },
+  { id: 'progress-slosh', name: '冲击进度 Slosh', colors: ['#040819','#061645','#0F3DB2','#4794FF','#C7E6FF','#0F3DB2','#4794FF'],
+    params: { progress: 0, speed: 1, scale: 9.5, amount: 0.135, lag: 1.4, echo: 0.082, bloom: 0.95, jitter: 0.3, frontIn: -0.12, frontOut: 0.12, churn: 1, feather: 1, stagger: 0.18, pulse: 0.28, pulseRate: 3, cellSize: 1, fill: 1, density: 1, turbulence: 1, sparkle: 1, ripple: 1, falloff: 1, trails: 3, trailGlow: 1, haze: 1, vignette: 1, grain: 0.01, aspect: 3.6, corner: 0.144 } },
+  { id: 'wallpaper-abyss', name: '深渊壁纸 Wallpaper', colors: ['#04051A','#08195E','#1E5CFF','#3FD8FF','#EEF1F6'],
+    params: { mode: 0, scale: 1.15, warp: 2.6, seed: 27, contrast: 1.35, bands: 1, rotation: 20, lift: 0.04, softness: 0.5, grain: 0.5, vignette: 0.85, aSpeed: 1, aAmount: 0.05, aWaves: 6 } },
+  { id: 'thinking-orbs-ribbon', name: '思考彩带 Thinking Ribbon', colors: ['#E8853C','#F4F1EA','#1B1B1D'],
+    params: { dots: 1, spread: 1, dotScale: 1, perspective: 1, depthSize: 1, depthFade: 1, opacity: 1, reverse: 0, phase: 0, spin: 0, yaw: 0, pitch: 0, showsPill: 1, showsLabel: 1, labelScale: 1, pillPad: 1, pillGap: 1, accent: '#E8853C', dotColor: '#F4F1EA', pill: '#1B1B1D', labelColor: '#F4F1EA' } },
+  { id: 'thinking-orbs-ping', name: '思考脉冲 Thinking Ping', colors: ['#E8853C','#F4F1EA','#1B1B1D'],
+    params: { dots: 1, spread: 1, dotScale: 1, perspective: 1, depthSize: 1, depthFade: 1, opacity: 1, reverse: 0, phase: 0, spin: 0, yaw: 0, pitch: 0, showsPill: 1, showsLabel: 1, labelScale: 1, pillPad: 1, pillGap: 1, accent: '#E8853C', dotColor: '#F4F1EA', pill: '#1B1B1D', labelColor: '#F4F1EA' } },
+  { id: 'spinning-earth-metal', name: '金属点阵地球 MetalDots', colors: ['#D1DBF0','#576685','#739EFF'],
+    params: { speed: 0.3, tilt: 0.41, globeSize: 0.41, detail: 74, dotSize: 0.12, offsetY: 0, sweepSpeed: 1.05, contourBands: 7, landColor: '#D1DBF0', oceanColor: '#576685', atmosphere: '#739EFF', sweepColor: '#1AFF59', gridColor: '#0F6B29' } },
+  { id: 'glow-card', name: '发光卡片 Glow', colors: ['#FFFFFF','#6994FF','#144CCD'],
+    params: { anim: 0, animAmount: 0.42, animShape: 0, speed: 1, cardX: 0.86, cardY: 0.52, radius: 40, lightX: 0.5, lightY: 1, intensity: 1, rimSize: 18, midSize: 34, deepSize: 74, topSize: 6, grainAmt: 0.15, bgTop: '#0A0909', bgBottom: '#09101F', rimColor: '#FFFFFF', midColor: '#6994FF', deepColor: '#144CCD', topColor: '#2365FF', shadowAmt: 0.1, shadowColor: '#144CCD' } },
+  { id: 'abyss-grid', name: '深渊网格 Abyss Grid', colors: ['#1E5BFD','#96E4FB','#2D95FF'],
+    params: { grid: 4, smooth: 1, fixEdges: 1, animate: 1, speed: 1, drift: 0.45, hue: 0, fBlur: 8, fFade: 0.85, fAmount: 0.65, fSoft: 0.5, fBrightness: 0, fContrast: 1, fSaturation: 1, fGrain: 0.5, fAngle: 20, fScale: 1.15, fInset: 0.08, fRound: 0.45, fBevel: 0.3, c00: '#04051A', c01: '#081757', c02: '#1E5BFD', c03: '#050824', c10: '#143EB6', c11: '#D3EDF7', c12: '#071654', c13: '#1D59F8', c20: '#060E3A', c21: '#1237A7', c22: '#96E4FB', c23: '#071551', c30: '#2D95FF', c31: '#060D35', c32: '#103198', c33: '#5ADCFE' } },
+  { id: 'filament', name: '丝状粒子 Filament', colors: ['#12308F','#66E6FF','#FFBD57'],
+    params: { speed: 1, swirl: 34, friction: 0.25, trail: 0.94, fade: 0.3, size: 2, brightness: 0.36, exposure: 1.5, vignette: 0.45, bloom: 1, glow: 0.5, cutoff: 0.35, cool: '#12308F', hot: '#66E6FF', spark: '#FFBD57' } },
+  { id: 'character-umbra', name: 'UMBRA角色 UMBRA', colors: ['#17191C','#F5F6F4','#FFFFFF'],
+    params: { size: 1, width: 1, height: 1, depth: 1, turn: 0, tilt: 0, lean: 0, perspective: 1, matSurface: 0, bodyColor: '#17191C', lightColor: '#FFFFFF', shadowColor: '#000000', lightX: -0.2, lightY: -0.26, shine: 0.2, shadow: 0.06, spread: 1, gloss: 0, rim: 0, eyeWidth: 1, eyeHeight: 1, eyeSpacing: 1, eyeRaise: 0, eyeAngle: 0, eyeColor: '#F5F6F4', speed: 1, liveliness: 1, blinkRate: 1 } },
+];
+const grid = document.getElementById('grid');
+const fpsEls = {};
+const insts = [];
+DEFS.forEach((d, idx) => {
+  const big = d.id === 'spinning-earth-metal';
+  const cw = big ? 420 : 400, ch = big ? 420 : 150;
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.gridColumn = big ? 'span 3' : 'auto';
+  card.innerHTML = `<div class="head"><span>${idx + 1}. ${d.name}</span><span class="fps" id="fps-${idx}">--fps</span></div><div class="stage"><div class="checker"></div><canvas width="${cw}" height="${ch}"></canvas></div><div class="params">${d.params ? Object.entries(d.params).map(([k, v]) => `${k}=${v}`).join('\n') : ''}</div>`;
+  grid.appendChild(card);
+  const canvas = card.querySelector('canvas');
+  fpsEls[idx] = card.querySelector('.fps');
+  VFX.start(canvas, d.id, d.colors[0], d.colors[1], d.colors[2], 1, d.params);
+  insts.push({ canvas, last: performance.now(), frames: 0, el: fpsEls[idx] });
+});
+setInterval(() => {
+  const now = performance.now();
+  insts.forEach(inst => {
+    const dt = now - inst.last;
+    inst.frames++;
+    if (dt >= 1000) {
+      inst.el.textContent = Math.round(inst.frames * 1000 / dt) + 'fps';
+      inst.frames = 0; inst.last = now;
+    }
+  });
+}, 1000);
+</script>
+</body>
+</html>

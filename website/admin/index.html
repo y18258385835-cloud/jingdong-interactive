@@ -1,0 +1,1560 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>鲸动交互平台 · 管理控制台</title>
+  <style>
+    :root {
+      --bg: #0b1018;
+      --card-bg: #101924;
+      --border: #243244;
+      --border-focus: #00d2ff;
+      --primary: #00a8ff;
+      --primary-hover: #0084cc;
+      --text: #edf4fb;
+      --text-muted: #91a3b8;
+      --danger: #ff5252;
+      --success: #00e676;
+      --warning: #ffab00;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .shell { max-width: 1200px; margin: 0 auto; padding: 32px 20px 80px; }
+    h1 { font-size: 22px; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+    p { color: var(--text-muted); margin: 6px 0 0; font-size: 13px; }
+    
+    /* Top bar */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .tab-btn.active {
+      color: #00d2ff;
+      background: rgba(0, 210, 255, 0.1);
+      border-color: rgba(0, 210, 255, 0.3);
+    }
+
+    /* Cards & Panels */
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 24px 0; }
+    .card, .panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; }
+    .card { padding: 16px 20px; }
+    .card span { font-size: 12px; color: var(--text-muted); }
+    .card strong { display: block; margin-top: 6px; font-size: 26px; color: #fff; font-weight: 700; }
+    .panel { padding: 24px; margin-top: 20px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .panel-head strong { font-size: 16px; color: #fff; }
+
+    /* Forms */
+    .form { display: grid; gap: 16px; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    label { display: grid; gap: 6px; color: #aab9c9; font-size: 12px; font-weight: 500; }
+    input, select, textarea {
+      font: inherit;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #304154;
+      border-radius: 6px;
+      background: #081019;
+      color: #eef5ff;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    textarea { resize: vertical; line-height: 1.5; }
+    
+    /* Buttons */
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid #1a88b8;
+      background: #007cb0;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    button:hover:not(:disabled) { background: #0095d4; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.ghost { background: transparent; border-color: #3a4c60; color: #c3d1df; }
+    button.ghost:hover:not(:disabled) { background: rgba(255,255,255,0.06); color: #fff; }
+    button.danger { border-color: #7a282f; color: #ff858d; background: transparent; }
+    button.danger:hover:not(:disabled) { background: #5c181d; color: #fff; }
+    button.success { border-color: #1b7a42; color: #85ffb5; background: #0c4d26; }
+    button.success:hover:not(:disabled) { background: #136633; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; margin-top: 14px; border: 1px solid var(--border); border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #1b2636; white-space: nowrap; }
+    th { color: #8498ac; font-weight: 600; background: #0a111b; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status.available { background: rgba(0, 230, 118, 0.15); color: #00e676; }
+    .status.redeemed { background: rgba(0, 168, 255, 0.15); color: #00a8ff; }
+    .status.expired { background: rgba(255, 171, 0, 0.15); color: #ffab00; }
+    .status.revoked { background: rgba(255, 82, 82, 0.15); color: #ff5252; }
+    .status.published { background: rgba(0, 230, 118, 0.15); color: #00e676; }
+    .status.draft { background: rgba(145, 163, 184, 0.15); color: #91a3b8; }
+
+    .codes {
+      width: 100%;
+      min-height: 140px;
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #304154;
+      border-radius: 6px;
+      background: #060a0f;
+      color: #79e3f7;
+      font: 12px ui-monospace, Consolas, monospace;
+    }
+    .notice {
+      min-height: 20px;
+      color: #ffca7d;
+      font-size: 13px;
+      margin-top: 10px;
+      white-space: pre-line;
+      font-weight: 500;
+    }
+    .notice.ok { color: #51ffaa; }
+
+    /* SERP Preview Card */
+    .serp-card {
+      background: #080d14;
+      border: 1px solid #1f2d3e;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .serp-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .serp-favicon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #00d2ff;
+      color: #060a0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .serp-site { font-size: 13px; color: #e8eaed; font-weight: 500; }
+    .serp-url { font-size: 12px; color: #9aa0a6; }
+    .serp-title {
+      font-size: 19px;
+      color: #8ab4f8;
+      font-weight: 500;
+      line-height: 1.35;
+      margin: 4px 0 6px;
+      display: block;
+      text-decoration: none;
+    }
+    .serp-desc {
+      font-size: 13px;
+      color: #bdc1c6;
+      line-height: 1.55;
+    }
+
+    /* Login view */
+    #login {
+      max-width: 400px;
+      margin: 16vh auto 0;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .login-form { display: grid; gap: 16px; margin-top: 24px; }
+    #app { display: none; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  
+    /* Image Uploader & Preview Widget */
+    .image-uploader-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .image-uploader-card:hover {
+      border-color: #00d2ff;
+      background: rgba(0, 210, 255, 0.02);
+    }
+    .img-preview-box {
+      width: 96px;
+      height: 96px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .img-preview-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .img-preview-box .placeholder-text {
+      font-size: 11px;
+      color: #5f6368;
+      text-align: center;
+      padding: 4px;
+    }
+    .upload-tip {
+      font-size: 11px;
+      color: #9aa0a6;
+      margin-top: 5px;
+    }
+    .btn-upload {
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-upload:hover {
+      background: #1557b0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 1. Password Protected Login Box -->
+  <main id="login" class="panel">
+    <h1>鲸动交互平台 · 管理控制台</h1>
+    <p>请输入服务器管理员密码以访问后台系统。</p>
+    <form class="login-form" id="login-form">
+      <label>
+        管理员密码
+        <input id="password" type="password" placeholder="请输入管理密码" autocomplete="current-password" required>
+      </label>
+      <button type="submit">安全登录</button>
+    </form>
+    <div class="notice" id="login-notice"></div>
+  </main>
+
+  <!-- 2. Main Administration Dashboard -->
+  <main id="app" class="shell">
+    <div class="top">
+      <div>
+        <h1 id="top-title">鲸动交互平台 · 管理控制台</h1>
+        <p>集中管理软件授权卡密、官网图文内容、企业动态与客户端生态</p>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="/" target="_blank" style="color: #00d2ff; text-decoration: none; font-size: 13px; font-weight: 600;">浏览官网 ↗</a>
+        <button class="ghost" id="logout" type="button">退出登录</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-licenses" type="button">💎 授权卡密管理</button>
+      <button class="tab-btn" data-tab="tab-company" type="button">🏢 浙江鲸动传媒企业官网配置 (www)</button>
+      <button class="tab-btn" data-tab="tab-site" type="button">🚀 鲸动交互平台软件官网配置 (根域名)</button>
+      <button class="tab-btn" data-tab="tab-news" type="button">📰 企业新闻维护</button>
+      <button class="tab-btn" data-tab="tab-seo" type="button">🔍 搜索引擎与 GEO 优化</button>
+      <button class="tab-btn" data-tab="tab-app" type="button">🔔 软件通知与体验链接</button>
+      <button class="tab-btn" data-tab="tab-security" type="button">🔐 安全与密码修改</button>
+    </div>
+
+    <!-- TAB 1: 授权卡密管理 (Identical to native software admin) -->
+    <div id="tab-licenses" class="tab-section active">
+      <section class="grid" id="summary"></section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>生成兑换码</strong>
+            <p>选择授权档位后，兑换码将在首次兑换时开始计算有效期。</p>
+          </div>
+          <button class="ghost" id="download" type="button" disabled>下载最近批次 CSV</button>
+        </div>
+        <form id="generate-form" class="form" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; align-items: end;">
+          <label>数量<input name="count" type="number" min="1" max="10000" value="10" required></label>
+          <label>套餐<select name="plan"><option value="pro">专业版</option><option value="team">团队版</option></select></label>
+          <label>授权档位
+            <select name="termCode">
+              <option value="trial_1d">1 天体验版</option>
+              <option value="trial_7d">7 天体验版</option>
+              <option value="monthly" selected>30 天月卡</option>
+              <option value="quarterly">90 天季卡</option>
+              <option value="yearly">365 天年卡 (¥299)</option>
+              <option value="permanent">企业/展厅商业买断码 (永久/10年 ¥999)</option>
+            </select>
+          </label>
+          <label>设备数<input name="deviceLimit" type="number" min="1" max="20" value="1" required></label>
+          <button type="submit">批量生成</button>
+        </form>
+        <textarea id="codes" class="codes" readonly placeholder="生成后的兑换码会显示在这里（明文仅显示一次，请及时下载保存）"></textarea>
+        <div class="notice" id="notice"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>兑换码账户与记录</strong>
+            <p>历史记录出于安全考量不显示卡密明文，可查看使用状态或进行撤销授权。</p>
+          </div>
+          <button class="ghost" id="refresh-licenses" type="button">刷新列表</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>批次</th><th>套餐</th><th>状态</th><th>档位</th><th>设备</th><th>兑换时间</th><th>到期时间</th><th>导出</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="licenses"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB: 浙江鲸动文化传媒有限公司企业官网配置 (www.jd-hub.top) -->
+    <div id="tab-company" class="tab-section">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>浙江鲸动文化传媒有限公司 · 企业官网内容配置 (www.jd-hub.top)</strong>
+            <p>在此修改企业全称、英文副标题、业务文案、联系方式与形象图片，保存后立即在 <code>www.jd-hub.top</code> 生效！</p>
+          </div>
+          <a href="https://www.jd-hub.top/" target="_blank" style="color:#00d2ff; text-decoration:none; font-size:13px; font-weight:600;">浏览企业官网 ↗</a>
+        </div>
+
+        <form id="company-config-form" class="form">
+          <div class="form-row">
+            <label>企业法定全称 (Brand Name)<input id="comp-brandName" required></label>
+            <label>英文名称/副标题 (English Name)<input id="comp-brandSub" required></label>
+          </div>
+
+          <div class="form-row">
+            <label>顶部宣传特性标语 (Hero Badge)<input id="comp-heroBadge" required></label>
+            <label>项目咨询电话 / 热线<input id="comp-contactPhone" required></label>
+          </div>
+
+          <label>首屏主视觉大标题 (Hero Title，支持 HTML)<input id="comp-heroTitle" required></label>
+          <label>企业核心定位与业务总结 (Hero Description)<textarea id="comp-heroDesc" rows="3" required></textarea></label>
+
+          <div class="form-row">
+            <label>官方商务合作邮箱<input id="comp-contactEmail" type="email" required></label>
+            <label>总部详细办公地址<input id="comp-contactAddr" required></label>
+          </div>
+
+          <label>关于企业简介正文 (About Us Description)<textarea id="comp-aboutText" rows="3" required></textarea></label>
+          
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">🏢 企业官方 Logo 图标 (支持上传本地 Logo / 外链)</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-comp-logo">
+                <span class="placeholder-text">默认 JD 徽标</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="comp-logoUrl" placeholder="https://... 或点击右侧按钮选择电脑本地图片上传" style="flex: 1;">
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-comp-logo')">📁 上传本地 Logo</button>
+                  <button type="button" class="ghost" onclick="clearImage('comp-logoUrl', 'preview-comp-logo')">清除</button>
+                </div>
+                <input type="file" id="file-comp-logo" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'comp-logoUrl', 'preview-comp-logo')">
+                <div class="upload-tip">建议尺寸：240×60px 或矢量 SVG，推荐透明背景 PNG。若留空则自动显示默认精致 JD 科技徽标。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">🖼️ 团队 / 企业形象展示大图 (About Section)</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-comp-aboutImg" style="width: 120px; height: 80px;">
+                <span class="placeholder-text">暂无图片</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="comp-aboutImg" placeholder="https://... 或点击右侧上传本地图片" style="flex: 1;" required>
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-comp-aboutImg')">📁 上传形象大图</button>
+                  <button type="button" class="ghost" onclick="clearImage('comp-aboutImg', 'preview-comp-aboutImg')">清除</button>
+                </div>
+                <input type="file" id="file-comp-aboutImg" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'comp-aboutImg', 'preview-comp-aboutImg')">
+                <div class="upload-tip">建议尺寸：1200×800px 高清横图，支持 JPG / WebP / PNG 格式。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">📱 官方商务微信 / 沟通二维码 (Contact QR Code)</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-comp-qrCode">
+                <span class="placeholder-text">暂无二维码</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="comp-qrCodeUrl" placeholder="https://... 或点击右侧上传二维码图片" style="flex: 1;">
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-comp-qrCode')">📁 上传二维码图片</button>
+                  <button type="button" class="ghost" onclick="clearImage('comp-qrCodeUrl', 'preview-comp-qrCode')">清除</button>
+                </div>
+                <input type="file" id="file-comp-qrCode" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'comp-qrCodeUrl', 'preview-comp-qrCode')">
+                <div class="upload-tip">上传您的微信个人号、企业微信或官方公众号二维码图片，客户在官网底部可直接扫码添加。</div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="form-row">
+            <label>企业官网 SEO 标题 (Title)<input id="comp-seoTitle" required></label>
+            <label>企业核心关键词 (Keywords)<input id="comp-seoKeywords" required></label>
+          </div>
+          <label>企业搜索结果摘要 (Meta Description)<textarea id="comp-seoDesc" rows="2" required></textarea></label>
+
+          <div>
+            <button type="submit" class="success" style="padding: 12px 24px; font-size: 14px;">保存企业官网 (www) 配置并生效</button>
+          </div>
+        </form>
+        <div class="notice" id="company-config-notice"></div>
+      </section>
+    </div>
+
+    <!-- TAB 2: 企业新闻维护 (News CMS) -->
+    <div id="tab-news" class="tab-section">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>发布 / 编辑企业新闻与动态</strong>
+            <p>在此维护的内容将直接展示在官网首页的“企业新闻与动态”专栏中。</p>
+          </div>
+          <button class="ghost" id="news-reset-btn" type="button">清空 / 新建文章</button>
+        </div>
+        <form id="news-form" class="form">
+          <input type="hidden" id="news-id" name="id">
+          
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">🖼️ 新闻封面配图 (可选，支持上传现场照/宣传海报)</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-news-coverImage" style="width: 110px; height: 75px;">
+                <span class="placeholder-text">暂无封面图</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="news-coverImage" placeholder="https://... 或点击右侧上传本地图片" style="flex: 1;">
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-news-cover')">📁 上传封面配图</button>
+                  <button type="button" class="ghost" onclick="clearImage('news-coverImage', 'preview-news-coverImage')">清除</button>
+                </div>
+                <input type="file" id="file-news-cover" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'news-coverImage', 'preview-news-coverImage')">
+                <div class="upload-tip">建议尺寸：800×500px，展示在官网新闻卡片顶部。若不上传则展示科技感渐变背景。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>文章标题<input id="news-title" name="title" placeholder="如：鲸动交互平台全面开启微软商店生态合作" required></label>
+            <label>文章分类/标签
+              <select id="news-category" name="category">
+                <option value="官方发布">官方发布</option>
+                <option value="产品升级">产品升级</option>
+                <option value="商业合作">商业合作</option>
+                <option value="行业展会">行业展会</option>
+              </select>
+            </label>
+            <label>发布日期<input id="news-date" name="date" placeholder="如：2026年10月25日"></label>
+          </div>
+          <label>
+            文章摘要 / 详细内容
+            <textarea id="news-summary" name="summary" rows="4" placeholder="请输入新闻主要内容，支持纯文本或简短介绍..." required></textarea>
+          </label>
+          <div>
+            <button type="submit" class="success">保存并同步至官网首页</button>
+          </div>
+        </form>
+        <div class="notice" id="news-notice"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div><strong>已发布新闻动态列表</strong><p>可在列表中快速编辑或删除既有动态。</p></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>标题</th><th>分类</th><th>日期</th><th style="max-width:350px;">摘要简介</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="news-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: 官网图文与链接配置 (Site CMS) -->
+    <div id="tab-site" class="tab-section">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>官网文案、图片与下载链接配置</strong>
+            <p>主页的所有展示文字、徽标标语、宣传图片及微软应用商店链接均可在此自由替换，保存后立即生效！</p>
+          </div>
+        </div>
+        <form id="site-config-form" class="form">
+
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">🚀 软件产品 Logo 图标</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-cfg-logo">
+                <span class="placeholder-text">默认 JD 徽标</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="cfg-logoUrl" placeholder="https://... 或点击右侧上传" style="flex: 1;">
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-cfg-logo')">📁 上传软件 Logo</button>
+                  <button type="button" class="ghost" onclick="clearImage('cfg-logoUrl', 'preview-cfg-logo')">清除</button>
+                </div>
+                <input type="file" id="file-cfg-logo" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'cfg-logoUrl', 'preview-cfg-logo')">
+                <div class="upload-tip">用于软件官网导航栏和页脚，建议透明背景 PNG / SVG 图标。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>企业品牌名称 (Brand Name)<input id="cfg-brandName" required></label>
+            <label>副标题 / 英文品牌 (Brand Subtitle)<input id="cfg-brandSub" required></label>
+          </div>
+
+          <div class="form-row">
+            <label>顶部通知特性标语 (Hero Badge)<input id="cfg-heroBadge" required></label>
+            <label>高亮软件名称 (Software Title)<input id="cfg-heroHighlight" required></label>
+          </div>
+
+          <label>主视觉首屏大标题 (Hero Title)<input id="cfg-heroTitle" required></label>
+          <label>软件与平台核心介绍文案 (Hero Description)<textarea id="cfg-heroDesc" rows="3" required></textarea></label>
+
+          <div class="form-row">
+            <label>微软应用商店链接 (Microsoft Store URL)<input id="cfg-msStoreUrl" type="url" required></label>
+            <label>微软商店下载按钮文字<input id="cfg-msStoreBtnText" required></label>
+          </div>
+
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">🖼️ 软件官网主图展示图片 / 视频海报 (Hero Image)</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-cfg-heroImage" style="width: 120px; height: 80px;">
+                <span class="placeholder-text">暂无主图</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="cfg-heroImage" placeholder="https://... 或点击右侧上传本地图片" style="flex: 1;" required>
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-cfg-heroImage')">📁 上传主图海报</button>
+                  <button type="button" class="ghost" onclick="clearImage('cfg-heroImage', 'preview-cfg-heroImage')">清除</button>
+                </div>
+                <input type="file" id="file-cfg-heroImage" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'cfg-heroImage', 'preview-cfg-heroImage')">
+                <div class="upload-tip">建议尺寸：1200×800px 高清横图，用于软件官网首屏主图或背景。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>商务合作与官方邮箱<input id="cfg-contactEmail" type="email" required></label>
+          </div>
+
+          <label>关于企业简介标题<input id="cfg-aboutTitle" required></label>
+          <label>关于企业详细介绍<textarea id="cfg-aboutDesc" rows="3" required></textarea></label>
+
+          <div>
+            <button type="submit" class="success" style="padding: 12px 24px; font-size: 14px;">保存所有官网配置并生效</button>
+          </div>
+        </form>
+        <div class="notice" id="site-config-notice"></div>
+      </section>
+    </div>
+
+    <!-- TAB: 搜索引擎优化与收录 (SEO CMS) -->
+    <div id="tab-seo" class="tab-section">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>搜索引擎收录与优化 (SEO / TDK)</strong>
+            <p>为百度、必应 (Bing)、Google 等搜索引擎定制标题、核心关键词与展示摘要，提升搜索排名与曝光率。</p>
+          </div>
+        </div>
+
+        <!-- Live SERP Preview -->
+        <div style="margin-bottom: 8px; font-size: 12px; color: var(--text-muted); font-weight: 600;">搜索引擎抓取结果实时预览 (SERP Preview)：</div>
+        <div class="serp-card">
+          <div class="serp-head">
+            <div class="serp-favicon">JD</div>
+            <div>
+              <div class="serp-site">鲸动文化传媒</div>
+              <div class="serp-url">https://www.jd-hub.top</div>
+            </div>
+          </div>
+          <a class="serp-title" id="serp-prev-title" href="https://www.jd-hub.top/" target="_blank">鲸动交互平台 - 官方网站 | 鲸动文化传媒</a>
+          <div class="serp-desc" id="serp-prev-desc">鲸动文化传媒自主研发的高性能数字交互中枢。为展览展厅、舞台演艺、数字多媒体与商业空间提供强大的硬件融合、多通道交互与云端授权支撑。</div>
+        </div>
+
+        <form id="seo-form" class="form">
+          <label>
+            SEO 网页标题 (Meta Title)
+            <input id="seo-title" placeholder="如：鲸动交互平台 - 官方网站 | 鲸动文化传媒" required>
+            <span style="font-size: 11px; color: var(--text-muted);">建议在 30 ~ 60 字符内，精准包含核心产品词与企业名称。</span>
+          </label>
+
+          <label>
+            核心搜索关键词 (Meta Keywords)
+            <input id="seo-keywords" placeholder="如：鲸动交互平台,鲸动文化传媒,交互软件,多媒体展厅,微软应用商店,雷达互动,大屏融合,多通道中控" required>
+            <span style="font-size: 11px; color: var(--text-muted);">多个关键词请用英文逗号 (,) 分隔。</span>
+          </label>
+
+          <label>
+            页面搜索摘要 (Meta Description)
+            <textarea id="seo-desc" rows="3" placeholder="如：鲸动文化传媒旗下核心产品——鲸动交互平台，专为创意多媒体、展馆展厅、商业互动与舞台多媒体设计的高性能数字交互中枢。已全面接入微软应用商店生态。" required></textarea>
+            <span style="font-size: 11px; color: var(--text-muted);">建议 80 ~ 150 字符，精炼概括平台核心价值。</span>
+          </label>
+
+          <div class="image-uploader-card">
+            <div style="font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 6px;">🌐 社交平台分享卡片图 (OpenGraph / Twitter Image)</div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <div class="img-preview-box" id="preview-seo-ogImage" style="width: 120px; height: 80px;">
+                <span class="placeholder-text">暂无卡片图</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 8px;">
+                  <input id="seo-ogImage" placeholder="https://... 或点击右侧上传" style="flex: 1;">
+                  <button type="button" class="btn-upload" onclick="triggerUpload('file-seo-ogImage')">📁 上传分享卡片</button>
+                  <button type="button" class="ghost" onclick="clearImage('seo-ogImage', 'preview-seo-ogImage')">清除</button>
+                </div>
+                <input type="file" id="file-seo-ogImage" accept="image/*" style="display: none;" onchange="handleFileSelected(this, 'seo-ogImage', 'preview-seo-ogImage')">
+                <div class="upload-tip">在微信、QQ、微博或 Twitter 分享链接时展示的封面缩略图，建议 1200×630px。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>
+              百度站长平台验证码 (Baidu Token)
+              <input id="seo-baidu" placeholder="如：codeva-xxxxx（可选）">
+            </label>
+            <label>
+              Google Search Console 验证码 (Google Token)
+              <input id="seo-google" placeholder="如：google-site-verification-xxxx（可选）">
+            </label>
+          </div>
+
+          <div>
+            <button type="submit" class="success" style="padding: 12px 24px; font-size: 14px;">保存 SEO 优化设置并即时生效</button>
+          </div>
+        </form>
+        <div class="notice" id="seo-notice"></div>
+      </section>
+
+      <!-- Spider & Sitemap Status -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>蜘蛛爬虫与站点地图状态 (Robots & Sitemap)</strong>
+            <p>系统已自动生成并实时维护符合搜索引擎规范的 XML 站点地图与防泄露爬虫协议。</p>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <div style="background: #090f17; border: 1px solid var(--border); border-radius: 8px; padding: 16px;">
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">🤖 爬虫控制文件 (robots.txt)</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">已自动屏蔽 <code>/admin/</code> 私密管理路径，防止搜索引擎爬虫泄露控制台。</div>
+            <a href="/robots.txt" target="_blank" style="color: #00d2ff; font-size: 12px; text-decoration: none; font-weight: 600;">查看 robots.txt ↗</a>
+          </div>
+          <div style="background: #090f17; border: 1px solid var(--border); border-radius: 8px; padding: 16px;">
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px;">🗺️ 站点索引地图 (sitemap.xml)</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">已包含首页与合规条款页，支持直接提交至百度/谷歌/必应站长平台。</div>
+            <a href="/sitemap.xml" target="_blank" style="color: #00d2ff; font-size: 12px; text-decoration: none; font-weight: 600;">查看 sitemap.xml ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- GEO & AI Search Friendliness -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <strong>🤖 GEO (生成式引擎优化) 与 AI 大模型友好度</strong>
+            <p>专门针对 ChatGPT Search, 微软 Copilot, Perplexity, Google Gemini, 百度文心等 AI 搜索与知识库提取打造。</p>
+          </div>
+          <a href="/llms.txt" target="_blank" class="ghost" style="text-decoration:none; display:inline-block; padding:8px 14px; border:1px solid #3a4c60; border-radius:6px; font-size:12px; color:#00d2ff;">查看 AI 专用说明 (llms.txt) ↗</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px;">
+          <div style="background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.25); border-radius: 8px; padding: 14px;">
+            <div style="color: #00e676; font-weight: 700; font-size: 13px; margin-bottom: 4px;">🟢 AI 抓取许可 (GPTBot / ClaudeBot)</div>
+            <div style="color: #91a3b8; font-size: 12px;">已在 robots.txt 中主动放通主流大模型蜘蛛抓取，保证 AI 问答库索引收录。</div>
+          </div>
+          <div style="background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.25); border-radius: 8px; padding: 14px;">
+            <div style="color: #00d2ff; font-weight: 700; font-size: 13px; margin-bottom: 4px;">📑 LLMs.txt 上下文协议</div>
+            <div style="color: #91a3b8; font-size: 12px;">已部署行业标准 <code>/llms.txt</code>，为大模型提供纯文本、无干扰的产品技术摘要。</div>
+          </div>
+          <div style="background: rgba(255, 171, 0, 0.08); border: 1px solid rgba(255, 171, 0, 0.25); border-radius: 8px; padding: 14px;">
+            <div style="color: #ffab00; font-weight: 700; font-size: 13px; margin-bottom: 4px;">💡 FAQPage 问答实体数据</div>
+            <div style="color: #91a3b8; font-size: 12px;">首页已注入 Schema.org Q&A 结构化微数据，优先命中 AI 搜索智能回答摘要。</div>
+          </div>
+        </div>
+
+        <div style="background: #081019; border: 1px solid var(--border); border-radius: 8px; padding: 16px;">
+          <strong style="color: #fff; font-size: 13px; display: block; margin-bottom: 8px;">AI 搜索收录建议与核心实体标签：</strong>
+          <p style="color: #91a3b8; font-size: 12px; margin: 0 0 10px;">
+            当用户在 ChatGPT、Perplexity 或必应 AI 中提问 <em>“有哪些支持激光雷达的多媒体展厅交互软件？”</em> 时，大模型会基于本站提供的 <strong>清晰实体定义、微数据与 llms.txt</strong> 将“鲸动交互平台”作为权威方案进行引用与推荐。
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 4px; font-size: 11px; color: #00d2ff;"># 展厅多媒体交互中枢</span>
+            <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 4px; font-size: 11px; color: #00d2ff;"># 多通道激光雷达融合</span>
+            <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 4px; font-size: 11px; color: #00d2ff;"># 微软应用商店生态</span>
+            <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 4px; font-size: 11px; color: #00d2ff;"># 一机一码离线加密</span>
+            <span style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 4px; font-size: 11px; color: #00d2ff;"># Art-Net / DMX512 中控联动</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 4: 软件通知与体验链接 (Matching native license-service) -->
+    <div id="tab-app" class="tab-section">
+      <section class="panel">
+        <div class="panel-head">
+          <div><strong>免费体验链接与多语言说明</strong><p>客户端软件用户在帮助菜单点击“激活”后，将通过此链接进入体验说明或网页。</p></div>
+        </div>
+        <form id="experience-link-form" class="form" style="grid-template-columns: 1fr 1fr; margin-top: 16px;">
+          <label style="grid-column: 1 / -1;">第三方 / 官网体验网址<input id="experience-link" name="url" type="url" placeholder="https://www.jd-hub.top/" required></label>
+          <label>中文标题<input id="experience-title-zh" name="titleZh" maxlength="200" required></label>
+          <label>English title<input id="experience-title-en" name="titleEn" maxlength="200" required></label>
+          <label>中文说明<textarea id="experience-description-zh" name="descriptionZh" maxlength="1000" rows="3" required></textarea></label>
+          <label>English description<textarea id="experience-description-en" name="descriptionEn" maxlength="1000" rows="3" required></textarea></label>
+          <label>中文按钮文字<input id="experience-button-zh" name="buttonZh" maxlength="200" required></label>
+          <label>English button label<input id="experience-button-en" name="buttonEn" maxlength="200" required></label>
+          <div style="grid-column: 1 / -1;"><button type="submit">保存体验内容</button></div>
+        </form>
+        <div class="notice" id="experience-link-notice"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div><strong>发布客户端通知 (铃铛通知)</strong><p>通知发布后将推送至鲸动交互平台软件右上角铃铛，支持中英文。</p></div>
+          <button class="ghost" id="notification-reset" type="button">新建通知</button>
+        </div>
+        <form id="notification-form" class="form" style="grid-template-columns: 1fr 1fr; margin-top: 16px;">
+          <input type="hidden" name="id">
+          <label>中文标题<input name="titleZh" maxlength="200" required></label>
+          <label>English title<input name="titleEn" maxlength="200" required></label>
+          <label>中文正文<textarea name="bodyZh" maxlength="5000" rows="4" required></textarea></label>
+          <label>English body<textarea name="bodyEn" maxlength="5000" rows="4" required></textarea></label>
+          <div style="grid-column: 1 / -1;"><button type="submit">保存草稿</button></div>
+        </form>
+        <div class="notice" id="notification-notice"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>标题</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead>
+            <tbody id="notifications"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 5: 安全与密码修改 -->
+    <div id="tab-security" class="tab-section">
+      <section class="panel" style="max-width: 600px;">
+        <div class="panel-head">
+          <div><strong>修改后台管理员密码</strong><p>修改后当前登录会话将立即失效，需使用新密码重新登录。</p></div>
+        </div>
+        <form id="password-form" class="form" style="margin-top: 16px;">
+          <label>当前管理密码<input name="currentPassword" type="password" autocomplete="current-password" required></label>
+          <label>新密码 (至少 8 位)<input name="newPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+          <label>确认新密码<input name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+          <div><button type="submit" class="danger">确认修改管理员密码</button></div>
+        </form>
+        <div class="notice" id="password-notice"></div>
+      </section>
+    </div>
+
+  </main>
+
+  <script>
+    (() => {
+      const sessionKey = 'aether_license_admin_session';
+      let lastBatch = [];
+      let currentSiteConfig = {};
+
+      const $ = (id) => document.getElementById(id);
+      const fmt = (value) => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '-';
+      const token = () => sessionStorage.getItem(sessionKey) || '';
+      function safeSetVal(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val ?? '';
+      }
+      function safeUpdatePreview(id, previewId) {
+        const el = document.getElementById(id);
+        if (el && typeof updateImagePreview === 'function') {
+          updateImagePreview(id, previewId);
+        }
+      }
+
+      const escapeHtml = (val) => String(val ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+      async function request(url, options = {}) {
+        const response = await fetch(url, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {}),
+            ...(token() ? { Authorization: `Bearer ${token()}` } : {})
+          }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || '请求失败');
+        return data;
+      }
+
+      function showLogin(message = '') {
+        $('app').style.display = 'none';
+        $('login').style.display = 'block';
+        $('login-notice').textContent = message;
+      }
+
+      // ===== Image Upload, Preview & Clear Functions =====
+      function triggerUpload(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+          input.value = '';
+          input.click();
+        }
+      }
+
+      function clearImage(targetInputId, previewId) {
+        const target = document.getElementById(targetInputId);
+        if (target) {
+          target.value = '';
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+          target.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        updateImagePreview(targetInputId, previewId);
+      }
+
+      function updateImagePreview(targetInputId, previewId) {
+        const target = document.getElementById(targetInputId);
+        const box = document.getElementById(previewId);
+        if (!box) return;
+        if (!box.dataset.defaultHtml) {
+          box.dataset.defaultHtml = box.innerHTML;
+        }
+        const val = target ? target.value.trim() : '';
+        if (val) {
+          box.innerHTML = `<img src="${escapeHtml(val)}" alt="Preview" style="max-width:100%; max-height:100%; object-fit:contain;" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'placeholder-text\\' style=\\'color:#ff6b6b;\\'>图片加载失败</span>';">`;
+        } else {
+          box.innerHTML = box.dataset.defaultHtml;
+        }
+      }
+
+      async function handleFileSelected(fileInput, targetInputId, previewId) {
+        if (!fileInput.files || !fileInput.files[0]) return;
+        const file = fileInput.files[0];
+
+        if (file.size > 20 * 1024 * 1024) {
+          alert('图片文件过大，单张图片不能超过 20MB');
+          fileInput.value = '';
+          return;
+        }
+
+        const validExts = ['.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.ico'];
+        const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        if (!validExts.includes(ext) && !file.type.startsWith('image/')) {
+          alert('请选择有效的图片文件（支持 PNG、JPG、JPEG、SVG、WebP、GIF、ICO）');
+          fileInput.value = '';
+          return;
+        }
+
+        const previewBox = document.getElementById(previewId);
+        if (previewBox) {
+          if (!previewBox.dataset.defaultHtml) {
+            previewBox.dataset.defaultHtml = previewBox.innerHTML;
+          }
+          previewBox.innerHTML = '<span class="placeholder-text" style="color:#00d2ff; font-weight:600;">⏳ 上传中...</span>';
+        }
+
+        const btnUpload = fileInput.parentElement ? fileInput.parentElement.querySelector('.btn-upload') : null;
+        const originalBtnText = btnUpload ? btnUpload.textContent : '';
+        if (btnUpload) {
+          btnUpload.disabled = true;
+          btnUpload.textContent = '⏳ 上传中...';
+        }
+
+        try {
+          const base64Data = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('读取本地图片文件失败'));
+            reader.readAsDataURL(file);
+          });
+
+          const res = await request('/api/admin/upload', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: file.name,
+              data: base64Data
+            })
+          });
+
+          if (res && res.url) {
+            const targetInput = document.getElementById(targetInputId);
+            if (targetInput) {
+              targetInput.value = res.url;
+              targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+              targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            updateImagePreview(targetInputId, previewId);
+          } else {
+            throw new Error(res.error || '上传接口未返回有效图片地址');
+          }
+        } catch (err) {
+          console.error('图片上传失败:', err);
+          alert('图片上传失败: ' + (err.message || '网络或服务器异常'));
+          updateImagePreview(targetInputId, previewId);
+          if (err.message && err.message.includes('未登录')) {
+            showLogin('登录已过期，请重新登录');
+          }
+        } finally {
+          if (btnUpload) {
+            btnUpload.disabled = false;
+            btnUpload.textContent = originalBtnText;
+          }
+          fileInput.value = '';
+        }
+      }
+
+      // Expose to window so inline onclick / onchange handlers can call them
+      window.triggerUpload = triggerUpload;
+      window.clearImage = clearImage;
+      window.updateImagePreview = updateImagePreview;
+      window.handleFileSelected = handleFileSelected;
+
+      // Tab Switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+          btn.classList.add('active');
+          const target = $(btn.dataset.tab);
+          if (target) target.classList.add('active');
+        });
+      });
+
+      // Terms translation
+      const termNames = { trial_1d: '1 天体验版', trial_7d: '7 天体验版', monthly: '30 天月卡', quarterly: '90 天季卡', yearly: '365 天年卡', permanent: '永久/商业买断' };
+      const termName = (item) => termNames[item.termCode] || `${item.durationDays} 天`;
+
+      // 1. Licenses Logic
+      function downloadCsv() {
+        const lines = ['code,plan,termCode,durationDays,deviceLimit,batchId'];
+        lastBatch.forEach(item => lines.push([item.code, item.plan, item.termCode || '', item.durationDays, item.deviceLimit, item.batchId].map(v => `"${String(v).replaceAll('"', '""')}"`).join(',')));
+        const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `jd-license-codes-${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function renderSummary(s) {
+        $('summary').innerHTML = [
+          ['总授权数', s.total],
+          ['待激活 (未兑换)', s.available],
+          ['有效运行中', s.redeemed],
+          ['已过期', s.expired],
+          ['已撤销', s.revoked]
+        ].map(([name, val]) => `<div class="card"><span>${name}</span><strong>${val}</strong></div>`).join('');
+      }
+
+      function renderLicenses(items) {
+        $('licenses').innerHTML = items.map(item => `
+          <tr>
+            <td>${item.batchId ? item.batchId.slice(6, 16) : '-'}</td>
+            <td><strong>${item.plan.toUpperCase()}</strong></td>
+            <td><span class="status ${item.status}">${item.status}</span></td>
+            <td>${termName(item)}</td>
+            <td>${item.deviceCount}/${item.deviceLimit}</td>
+            <td>${fmt(item.redeemedAt)}</td>
+            <td>${fmt(item.expiresAt)}</td>
+            <td>${item.exportCount || 0}</td>
+            <td>
+              ${item.status !== 'revoked' ? `<button class="danger" data-revoke="${item.id}" type="button">撤销</button>` : '<span style="color:#666">已撤销</span>'}
+            </td>
+          </tr>
+        `).join('') || '<tr><td colspan="9" style="text-align:center; color:#666; padding:24px;">暂无授权码记录</td></tr>';
+
+        document.querySelectorAll('[data-revoke]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('确定撤销该卡密？撤销后客户端将立即无法通过该授权码导出或运行。')) return;
+            try {
+              await request(`/api/admin/licenses/${btn.dataset.revoke}/revoke`, { method: 'POST' });
+              await loadLicenses();
+            } catch (err) {
+              $('notice').textContent = err.message;
+            }
+          });
+        });
+      }
+
+      async function loadLicenses() {
+        try {
+          const [summary, data] = await Promise.all([
+            request('/api/admin/licenses/summary'),
+            request('/api/admin/licenses')
+          ]);
+          renderSummary(summary);
+          renderLicenses(data.licenses || []);
+        } catch (err) {
+          sessionStorage.removeItem(sessionKey);
+          showLogin(err.message);
+        }
+      }
+
+      // 2. News CMS Logic
+      function resetNewsForm() {
+        $('news-form').reset();
+        $('news-id').value = '';
+        $('news-date').value = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+        safeSetVal('news-coverImage', '');
+        safeUpdatePreview('news-coverImage', 'preview-news-coverImage');
+        $('news-notice').textContent = '';
+      }
+
+      function renderNews(newsList) {
+        $('news-table-body').innerHTML = newsList.map(n => `
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:10px;">
+                ${n.coverImage ? `<img src="${n.coverImage}" style="width:40px; height:28px; object-fit:cover; border-radius:4px; flex-shrink:0;">` : ''}
+                <strong>${escapeHtml(n.title)}</strong>
+              </div>
+            </td>
+            <td><span class="status draft">${escapeHtml(n.category)}</span></td>
+            <td>${escapeHtml(n.date)}</td>
+            <td style="max-width:350px; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(n.summary)}">${escapeHtml(n.summary)}</td>
+            <td>
+              <button class="ghost" data-edit-news="${n.id}" type="button">编辑</button>
+              <button class="danger" data-delete-news="${n.id}" type="button">删除</button>
+            </td>
+          </tr>
+        `).join('') || '<tr><td colspan="5" style="text-align:center; color:#666; padding:24px;">暂无新闻动态</td></tr>';
+
+        document.querySelectorAll('[data-edit-news]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const item = (currentSiteConfig.news || []).find(x => x.id === btn.dataset.editNews);
+            if (!item) return;
+            $('news-id').value = item.id;
+            $('news-title').value = item.title;
+            $('news-category').value = item.category || '企业动态';
+            $('news-date').value = item.date;
+            $('news-summary').value = item.summary;
+            safeSetVal('news-coverImage', item.coverImage || '');
+            safeUpdatePreview('news-coverImage', 'preview-news-coverImage');
+            $('news-form').scrollIntoView({ behavior: 'smooth' });
+          });
+        });
+
+        document.querySelectorAll('[data-delete-news]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('确定删除该篇企业新闻？删除后官网首页将不再展示。')) return;
+            try {
+              await request(`/api/admin/news/${btn.dataset.deleteNews}`, { method: 'DELETE' });
+              await loadSiteConfig();
+            } catch (err) {
+              $('news-notice').textContent = err.message;
+            }
+          });
+        });
+      }
+
+      // 3. Company Config CMS Logic (www.jd-hub.top)
+      async function loadCompanyConfig() {
+        try {
+          const c = await request('/api/company/config');
+          safeSetVal('comp-brandName', c.brandName);
+          safeSetVal('comp-brandSub', c.brandSub);
+          safeSetVal('comp-logoUrl', c.logoUrl);
+          safeUpdatePreview('comp-logoUrl', 'preview-comp-logo');
+          safeSetVal('comp-aboutImg', c.aboutImg);
+          safeUpdatePreview('comp-aboutImg', 'preview-comp-aboutImg');
+          safeSetVal('comp-qrCodeUrl', c.qrCodeUrl);
+          safeUpdatePreview('comp-qrCodeUrl', 'preview-comp-qrCode');
+          safeSetVal('comp-heroBadge', c.heroBadge);
+          safeSetVal('comp-heroTitle', c.heroTitle);
+          safeSetVal('comp-heroDesc', c.heroDesc);
+          safeSetVal('comp-contactPhone', c.contactPhone);
+          safeSetVal('comp-contactEmail', c.contactEmail);
+          safeSetVal('comp-contactAddr', c.contactAddr);
+          safeSetVal('comp-aboutText', c.aboutText);
+          safeSetVal('comp-seoTitle', c.seoTitle);
+          safeSetVal('comp-seoKeywords', c.seoKeywords);
+          safeSetVal('comp-seoDesc', c.seoDesc);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // 4. Site Config CMS Logic (jd-hub.top)
+      async function loadSiteConfig() {
+        try {
+          const cfg = await request('/api/site/config');
+          currentSiteConfig = cfg;
+          safeSetVal('cfg-brandName', cfg.brandName);
+          safeSetVal('cfg-brandSub', cfg.brandSub);
+          safeSetVal('cfg-heroBadge', cfg.heroBadge);
+          safeSetVal('cfg-heroTitle', cfg.heroTitle);
+          safeSetVal('cfg-heroHighlight', cfg.heroHighlight);
+          safeSetVal('cfg-heroDesc', cfg.heroDesc);
+          safeSetVal('cfg-msStoreUrl', cfg.msStoreUrl);
+          safeSetVal('cfg-msStoreBtnText', cfg.msStoreBtnText);
+          safeSetVal('cfg-logoUrl', cfg.logoUrl);
+          safeUpdatePreview('cfg-logoUrl', 'preview-cfg-logo');
+          safeSetVal('cfg-heroImage', cfg.heroImage);
+          safeUpdatePreview('cfg-heroImage', 'preview-cfg-heroImage');
+          safeSetVal('cfg-contactEmail', cfg.contactEmail);
+          safeSetVal('cfg-aboutTitle', cfg.aboutTitle);
+          safeSetVal('cfg-aboutDesc', cfg.aboutDesc);
+
+          // SEO Config
+          safeSetVal('seo-title', cfg.seoTitle);
+          safeSetVal('seo-keywords', cfg.seoKeywords);
+          safeSetVal('seo-desc', cfg.seoDescription);
+          safeSetVal('seo-ogImage', cfg.ogImage);
+          safeUpdatePreview('seo-ogImage', 'preview-seo-ogImage');
+          safeSetVal('seo-baidu', cfg.baiduToken);
+          safeSetVal('seo-google', cfg.googleToken);
+          if (typeof updateSerpPreview === 'function') updateSerpPreview();
+
+          renderNews(cfg.news || []);
+        } catch (err) {
+          console.error('loadSiteConfig error:', err);
+        }
+      }
+
+      // 4. Free Experience & Notifications Logic
+      async function loadExperienceLink() {
+        try {
+          const data = await request('/api/admin/free-experience-link');
+          $('experience-link').value = data.url || '';
+          $('experience-title-zh').value = data.titleZh || '';
+          $('experience-title-en').value = data.titleEn || '';
+          $('experience-description-zh').value = data.descriptionZh || '';
+          $('experience-description-en').value = data.descriptionEn || '';
+          $('experience-button-zh').value = data.buttonZh || '';
+          $('experience-button-en').value = data.buttonEn || '';
+        } catch (err) {
+          $('experience-link-notice').textContent = err.message;
+        }
+      }
+
+      function resetNotificationForm() {
+        $('notification-form').reset();
+        $('notification-form').elements.id.value = '';
+      }
+
+      function renderNotifications(items) {
+        $('notifications').innerHTML = items.map(item => `
+          <tr>
+            <td><strong>${escapeHtml(item.titleZh)}</strong><br><span style="color:#8498ac">${escapeHtml(item.titleEn)}</span></td>
+            <td><span class="status ${item.status}">${escapeHtml(item.status)}</span></td>
+            <td>${fmt(item.updatedAt)}</td>
+            <td>
+              <button class="ghost" data-edit-notif="${item.id}" type="button">编辑</button>
+              ${item.status === 'published' ? `<button class="danger" data-withdraw-notif="${item.id}" type="button">撤回</button>` : `<button data-publish-notif="${item.id}" type="button">发布</button>`}
+              <button class="danger" data-delete-notif="${item.id}" type="button">删除</button>
+            </td>
+          </tr>
+        `).join('') || '<tr><td colspan="4" style="text-align:center; color:#666; padding:24px;">暂无通知记录</td></tr>';
+
+        document.querySelectorAll('[data-edit-notif]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const item = items.find(e => e.id === btn.dataset.editNotif);
+            if (!item) return;
+            const form = $('notification-form');
+            Object.entries(item).forEach(([k, v]) => { if (form.elements[k]) form.elements[k].value = v || ''; });
+            form.scrollIntoView({ behavior: 'smooth' });
+          });
+        });
+
+        document.querySelectorAll('[data-publish-notif]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            try {
+              await request(`/api/admin/notifications/${btn.dataset.publishNotif}/publish`, { method: 'POST' });
+              await loadNotifications();
+            } catch (err) { $('notification-notice').textContent = err.message; }
+          });
+        });
+
+        document.querySelectorAll('[data-withdraw-notif]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            try {
+              await request(`/api/admin/notifications/${btn.dataset.withdrawNotif}/withdraw`, { method: 'POST' });
+              await loadNotifications();
+            } catch (err) { $('notification-notice').textContent = err.message; }
+          });
+        });
+
+        document.querySelectorAll('[data-delete-notif]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('确定删除此客户端通知？')) return;
+            try {
+              await request(`/api/admin/notifications/${btn.dataset.deleteNotif}`, { method: 'DELETE' });
+              await loadNotifications();
+            } catch (err) { $('notification-notice').textContent = err.message; }
+          });
+        });
+      }
+
+      async function loadNotifications() {
+        try {
+          const data = await request('/api/admin/notifications');
+          renderNotifications(data.notifications || []);
+        } catch (err) { $('notification-notice').textContent = err.message; }
+      }
+
+      // Event Listeners
+      $('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const data = await request('/api/admin/licenses/login', {
+            method: 'POST',
+            body: JSON.stringify({ password: $('password').value })
+          });
+          sessionStorage.setItem(sessionKey, data.token);
+          $('password').value = '';
+          $('login').style.display = 'none';
+          $('app').style.display = 'block';
+          await Promise.all([loadLicenses(), loadCompanyConfig(), loadSiteConfig(), loadExperienceLink(), loadNotifications()]);
+        } catch (err) {
+          $('login-notice').textContent = err.message;
+        }
+      });
+
+      $('generate-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('notice').textContent = '';
+        try {
+          const form = new FormData(e.target);
+          const payload = Object.fromEntries(form.entries());
+          payload.count = Number(payload.count);
+          payload.deviceLimit = Number(payload.deviceLimit);
+          const data = await request('/api/admin/licenses/generate', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          lastBatch = data.codes;
+          $('codes').value = data.codes.map(i => i.code).join('\n');
+          $('download').disabled = false;
+          $('notice').className = 'notice ok';
+          $('notice').textContent = `成功生成 ${data.codes.length} 个授权码，批次号：${data.batchId}`;
+          await loadLicenses();
+        } catch (err) {
+          $('notice').className = 'notice';
+          $('notice').textContent = err.message;
+        }
+      });
+
+      $('news-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('news-notice').textContent = '';
+        const payload = {
+          id: $('news-id').value || undefined,
+          title: $('news-title').value.trim(),
+          category: $('news-category').value,
+          date: $('news-date').value.trim(),
+          coverImage: $('news-coverImage') ? $('news-coverImage').value.trim() : '',
+          summary: $('news-summary').value.trim()
+        };
+        try {
+          await request('/api/admin/news', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          $('news-notice').className = 'notice ok';
+          $('news-notice').textContent = '新闻已保存并同步至官网首页！';
+          resetNewsForm();
+          await loadSiteConfig();
+        } catch (err) {
+          $('news-notice').className = 'notice';
+          $('news-notice').textContent = err.message;
+        }
+      });
+
+      $('company-config-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('company-config-notice').textContent = '';
+        const payload = {
+          brandName: $('comp-brandName').value.trim(),
+          brandSub: $('comp-brandSub').value.trim(),
+            logoUrl: $('comp-logoUrl').value.trim(),
+            qrCodeUrl: $('comp-qrCodeUrl').value.trim(),
+          heroBadge: $('comp-heroBadge').value.trim(),
+          heroTitle: $('comp-heroTitle').value.trim(),
+          heroDesc: $('comp-heroDesc').value.trim(),
+          contactPhone: $('comp-contactPhone').value.trim(),
+          contactEmail: $('comp-contactEmail').value.trim(),
+          contactAddr: $('comp-contactAddr').value.trim(),
+          aboutText: $('comp-aboutText').value.trim(),
+          aboutImg: $('comp-aboutImg').value.trim(),
+          seoTitle: $('comp-seoTitle').value.trim(),
+          seoKeywords: $('comp-seoKeywords').value.trim(),
+          seoDesc: $('comp-seoDesc').value.trim()
+        };
+        try {
+          await request('/api/admin/company/config', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          $('company-config-notice').className = 'notice ok';
+          $('company-config-notice').textContent = '浙江鲸动传媒企业官网 (www.jd-hub.top) 配置已成功保存并即刻生效！';
+          await loadCompanyConfig();
+        } catch (err) {
+          $('company-config-notice').className = 'notice';
+          $('company-config-notice').textContent = err.message;
+        }
+      });
+
+      $('site-config-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('site-config-notice').textContent = '';
+        const payload = {
+          brandName: $('cfg-brandName').value.trim(),
+          brandSub: $('cfg-brandSub').value.trim(),
+          heroBadge: $('cfg-heroBadge').value.trim(),
+          heroTitle: $('cfg-heroTitle').value.trim(),
+          heroHighlight: $('cfg-heroHighlight').value.trim(),
+          heroDesc: $('cfg-heroDesc').value.trim(),
+          msStoreUrl: $('cfg-msStoreUrl').value.trim(),
+          msStoreBtnText: $('cfg-msStoreBtnText').value.trim(),
+          logoUrl: $('cfg-logoUrl').value.trim(),
+          heroImage: $('cfg-heroImage').value.trim(),
+          contactEmail: $('cfg-contactEmail').value.trim(),
+          aboutTitle: $('cfg-aboutTitle').value.trim(),
+          aboutDesc: $('cfg-aboutDesc').value.trim()
+        };
+        try {
+          await request('/api/admin/site/config', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          $('site-config-notice').className = 'notice ok';
+          $('site-config-notice').textContent = '官网文案与链接已成功更新，主页即刻生效！';
+          await loadSiteConfig();
+        } catch (err) {
+          $('site-config-notice').className = 'notice';
+          $('site-config-notice').textContent = err.message;
+        }
+      });
+
+      // Live SERP Preview
+      function updateSerpPreview() {
+        const title = $('seo-title').value.trim() || '鲸动交互平台 - 官方网站 | 鲸动文化传媒';
+        const desc = $('seo-desc').value.trim() || '鲸动文化传媒自主研发的高性能数字交互中枢。为展览展厅、舞台演艺、数字多媒体与商业空间提供强大的硬件融合、多通道交互与云端授权支撑。';
+        $('serp-prev-title').textContent = title;
+        $('serp-prev-desc').textContent = desc;
+      }
+      $('seo-title').addEventListener('input', updateSerpPreview);
+      $('seo-desc').addEventListener('input', updateSerpPreview);
+
+      // SEO Form Submission
+      $('seo-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('seo-notice').textContent = '';
+        const payload = {
+          seoTitle: $('seo-title').value.trim(),
+          seoKeywords: $('seo-keywords').value.trim(),
+          seoDescription: $('seo-desc').value.trim(),
+          ogImage: $('seo-ogImage').value.trim(),
+          baiduToken: $('seo-baidu').value.trim(),
+          googleToken: $('seo-google').value.trim()
+        };
+        try {
+          await request('/api/admin/site/config', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          $('seo-notice').className = 'notice ok';
+          $('seo-notice').textContent = 'SEO 设置已保存并同步生成 robots.txt 与 sitemap.xml！';
+          await loadSiteConfig();
+        } catch (err) {
+          $('seo-notice').className = 'notice';
+          $('seo-notice').textContent = err.message;
+        }
+      });
+
+      $('experience-link-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('experience-link-notice').textContent = '';
+        try {
+          await request('/api/admin/free-experience-link', {
+            method: 'POST',
+            body: JSON.stringify({
+              url: $('experience-link').value.trim(),
+              titleZh: $('experience-title-zh').value.trim(),
+              titleEn: $('experience-title-en').value.trim(),
+              descriptionZh: $('experience-description-zh').value.trim(),
+              descriptionEn: $('experience-description-en').value.trim(),
+              buttonZh: $('experience-button-zh').value.trim(),
+              buttonEn: $('experience-button-en').value.trim()
+            })
+          });
+          $('experience-link-notice').className = 'notice ok';
+          $('experience-link-notice').textContent = '体验链接与多语言说明已保存！';
+        } catch (err) {
+          $('experience-link-notice').className = 'notice';
+          $('experience-link-notice').textContent = err.message;
+        }
+      });
+
+      $('notification-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('notification-notice').textContent = '';
+        const form = new FormData(e.target);
+        const id = form.get('id');
+        const payload = {
+          titleZh: form.get('titleZh'),
+          titleEn: form.get('titleEn'),
+          bodyZh: form.get('bodyZh'),
+          bodyEn: form.get('bodyEn')
+        };
+        try {
+          await request(id ? `/api/admin/notifications/${id}` : '/api/admin/notifications', {
+            method: id ? 'PATCH' : 'POST',
+            body: JSON.stringify(payload)
+          });
+          $('notification-notice').className = 'notice ok';
+          $('notification-notice').textContent = '通知已保存！';
+          resetNotificationForm();
+          await loadNotifications();
+        } catch (err) {
+          $('notification-notice').className = 'notice';
+          $('notification-notice').textContent = err.message;
+        }
+      });
+
+      $('password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('password-notice').textContent = '';
+        const form = new FormData(e.target);
+        const currentPassword = form.get('currentPassword');
+        const newPassword = form.get('newPassword');
+        const confirmPassword = form.get('confirmPassword');
+        if (newPassword !== confirmPassword) {
+          $('password-notice').textContent = '两次输入的新密码不一致';
+          return;
+        }
+        try {
+          await request('/api/admin/licenses/password', {
+            method: 'POST',
+            body: JSON.stringify({ currentPassword, newPassword })
+          });
+          sessionStorage.removeItem(sessionKey);
+          e.target.reset();
+          showLogin('密码修改成功，请使用新密码重新登录');
+        } catch (err) {
+          $('password-notice').textContent = err.message;
+        }
+      });
+
+      $('news-reset-btn').addEventListener('click', resetNewsForm);
+      $('notification-reset').addEventListener('click', resetNotificationForm);
+      $('download').addEventListener('click', downloadCsv);
+      $('refresh-licenses').addEventListener('click', loadLicenses);
+      $('logout').addEventListener('click', () => {
+        sessionStorage.removeItem(sessionKey);
+        showLogin();
+      });
+
+      // Real-time preview when manual URL input changes
+      [
+        { inputId: 'comp-logoUrl', previewId: 'preview-comp-logo' },
+        { inputId: 'comp-aboutImg', previewId: 'preview-comp-aboutImg' },
+        { inputId: 'comp-qrCodeUrl', previewId: 'preview-comp-qrCode' },
+        { inputId: 'news-coverImage', previewId: 'preview-news-coverImage' },
+        { inputId: 'cfg-logoUrl', previewId: 'preview-cfg-logo' },
+        { inputId: 'cfg-heroImage', previewId: 'preview-cfg-heroImage' },
+        { inputId: 'seo-ogImage', previewId: 'preview-seo-ogImage' }
+      ].forEach(({ inputId, previewId }) => {
+        const el = $(inputId);
+        if (el) {
+          el.addEventListener('input', () => updateImagePreview(inputId, previewId));
+          el.addEventListener('change', () => updateImagePreview(inputId, previewId));
+        }
+      });
+
+      // Auto login if session exists
+      if (token()) {
+        $('login').style.display = 'none';
+        $('app').style.display = 'block';
+        Promise.all([loadLicenses(), loadCompanyConfig(), loadSiteConfig(), loadExperienceLink(), loadNotifications()]).catch(() => {
+          showLogin();
+        });
+      } else {
+        showLogin();
+      }
+    })();
+  </script>
+</body>
+</html>

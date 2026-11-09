@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AETHER 授权管理</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, "Microsoft YaHei", sans-serif; background: #0b1018; color: #edf4fb; }
+    * { box-sizing: border-box; } body { margin: 0; min-width: 320px; }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 42px 24px 64px; }
+    h1 { font-size: 24px; margin: 0; } p { color: #91a3b8; margin: 8px 0 0; font-size: 13px; }
+    .top, .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 28px 0; }
+    .card, .panel { background: #101924; border: 1px solid #243244; border-radius: 8px; }
+    .card { padding: 16px; } .card strong { display: block; margin-top: 8px; font-size: 24px; }
+    .panel { padding: 20px; margin-top: 16px; }
+    .form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    label { display: grid; gap: 7px; color: #aab9c9; font-size: 12px; }
+    input, select, button { font: inherit; border-radius: 6px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #304154; background: #0b121b; color: #eef5ff; }
+    textarea { resize: vertical; font: inherit; }
+    button { cursor: pointer; border: 1px solid #2d7592; background: #0d5b78; color: #f4fbff; padding: 10px 14px; font-weight: 600; }
+    button:hover { background: #117498; } button.ghost { background: transparent; border-color: #3a4c60; color: #c3d1df; }
+    button.danger { border-color: #8c3841; color: #ffb5bc; background: transparent; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12px; }
+    th, td { text-align: left; padding: 11px 8px; border-bottom: 1px solid #223042; white-space: nowrap; }
+    th { color: #8498ac; font-weight: 500; } .status { text-transform: uppercase; font-size: 10px; color: #86ddec; }
+    .codes { width: 100%; min-height: 172px; margin-top: 14px; resize: vertical; padding: 12px; border: 1px solid #304154; border-radius: 6px; background: #081019; color: #bdeff7; font: 12px ui-monospace, Consolas, monospace; }
+    .notice { min-height: 19px; color: #ffca7d; font-size: 12px; margin-top: 10px; white-space: pre-line; }
+    #app { display: none; } #login { max-width: 360px; margin: 14vh auto; padding: 24px; } .login-form { display: grid; gap: 12px; margin-top: 22px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } .form { grid-template-columns: 1fr 1fr; } .form button { grid-column: span 2; } .table-wrap { overflow: auto; } }
+  </style>
+</head>
+<body>
+  <main id="login" class="panel">
+    <h1>AETHER 授权管理</h1><p>使用服务器配置的管理员密码登录。</p>
+    <form class="login-form" id="login-form"><label>管理员密码<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">登录</button></form>
+    <div class="notice" id="login-notice"></div>
+  </main>
+  <main id="app" class="shell">
+    <div class="top"><div><h1>AETHER 授权管理</h1><p>兑换码明文只在生成后显示一次，请立即下载 CSV 保存。</p></div><button class="ghost" id="logout" type="button">退出</button></div>
+    <section class="grid" id="summary"></section>
+    <section class="panel">
+      <div class="panel-head"><div><strong>生成兑换码</strong><p>选择授权档位后，兑换码将在首次兑换时开始计算有效期。</p></div><button class="ghost" id="download" type="button" disabled>下载最近批次 CSV</button></div>
+      <form id="generate-form" class="form"><label>数量<input name="count" type="number" min="1" max="10000" value="10" required></label><label>套餐<select name="plan"><option value="pro">专业版</option><option value="team">团队版</option></select></label><label>授权档位<select name="termCode"><option value="trial_1d">1 天体验版</option><option value="trial_7d">7 天体验版</option><option value="monthly" selected>30 天月卡</option><option value="quarterly">90 天季卡</option><option value="yearly">365 天年卡</option></select></label><label>设备数<input name="deviceLimit" type="number" min="1" max="20" value="1" required></label><button type="submit">生成</button></form>
+      <textarea id="codes" class="codes" readonly placeholder="生成后的兑换码会显示在这里"></textarea><div class="notice" id="notice"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><strong>免费体验链接</strong><p>用户在帮助菜单点击“激活”后，将通过此链接进入体验说明或第三方页面。</p></div></div>
+      <form id="experience-link-form" class="form" style="grid-template-columns: 1fr 1fr; margin-top: 16px;">
+        <label style="grid-column: 1 / -1;">第三方网址<input id="experience-link" name="url" type="url" placeholder="https://example.com/free-trial" required></label>
+        <label>中文标题<input id="experience-title-zh" name="titleZh" maxlength="200" required></label>
+        <label>English title<input id="experience-title-en" name="titleEn" maxlength="200" required></label>
+        <label>中文说明<textarea id="experience-description-zh" name="descriptionZh" maxlength="1000" rows="3" required></textarea></label>
+        <label>English description<textarea id="experience-description-en" name="descriptionEn" maxlength="1000" rows="3" required></textarea></label>
+        <label>中文按钮文字<input id="experience-button-zh" name="buttonZh" maxlength="200" required></label>
+        <label>English button label<input id="experience-button-en" name="buttonEn" maxlength="200" required></label>
+        <button type="submit">保存体验内容</button>
+      </form>
+      <div class="notice" id="experience-link-notice"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><strong>修改管理员密码</strong><p>修改后当前会话会失效，请使用新密码重新登录。</p></div></div>
+      <form id="password-form" class="form" style="grid-template-columns: 1fr 1fr 1fr auto; margin-top: 16px;">
+        <label>当前密码<input name="currentPassword" type="password" autocomplete="current-password" required></label>
+        <label>新密码<input name="newPassword" type="password" minlength="12" autocomplete="new-password" required></label>
+        <label>确认新密码<input name="confirmPassword" type="password" minlength="12" autocomplete="new-password" required></label>
+        <button type="submit">修改密码</button>
+      </form>
+      <div class="notice" id="password-notice"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><strong>发布通知</strong><p>通知发布后会显示在编辑器顶部铃铛中，支持中英文内容。</p></div><button class="ghost" id="notification-reset" type="button">新建通知</button></div>
+      <form id="notification-form" class="form" style="grid-template-columns: 1fr 1fr; margin-top: 16px;">
+        <input type="hidden" name="id">
+        <label>中文标题<input name="titleZh" maxlength="200" required></label>
+        <label>English title<input name="titleEn" maxlength="200" required></label>
+        <label>中文正文<textarea name="bodyZh" maxlength="5000" rows="4" required></textarea></label>
+        <label>English body<textarea name="bodyEn" maxlength="5000" rows="4" required></textarea></label>
+        <button type="submit">保存草稿</button>
+      </form>
+      <div class="notice" id="notification-notice"></div>
+      <div class="table-wrap"><table><thead><tr><th>标题</th><th>状态</th><th>更新时间</th><th></th></tr></thead><tbody id="notifications"></tbody></table></div>
+    </section>
+    <section class="panel"><div class="panel-head"><div><strong>兑换码账户</strong><p>历史页面不显示兑换码明文。</p></div><button class="ghost" id="refresh" type="button">刷新</button></div><div class="table-wrap"><table><thead><tr><th>批次</th><th>套餐</th><th>状态</th><th>档位</th><th>设备</th><th>兑换时间</th><th>到期时间</th><th>导出</th><th></th></tr></thead><tbody id="licenses"></tbody></table></div></section>
+  </main>
+  <script>
+    (() => {
+      const sessionKey = 'aether_license_admin_session'; let lastBatch = [];
+      const $ = (id) => document.getElementById(id); const fmt = (value) => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '-'; const token = () => sessionStorage.getItem(sessionKey) || '';
+      async function request(url, options = {}) { const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}), ...(token() ? { Authorization: `Bearer ${token()}` } : {}) } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || '请求失败'); return data; }
+      function showLogin(message = '') { $('app').style.display = 'none'; $('login').style.display = 'block'; $('login-notice').textContent = message; }
+      const termNames = { trial_1d: '1 天体验版', trial_7d: '7 天体验版', monthly: '30 天月卡', quarterly: '90 天季卡', yearly: '365 天年卡' }; const termName = (item) => termNames[item.termCode] || `${item.durationDays} 天`;
+      function downloadCsv() { const lines = ['code,plan,termCode,durationDays,deviceLimit,batchId']; lastBatch.forEach((item) => lines.push([item.code, item.plan, item.termCode || '', item.durationDays, item.deviceLimit, item.batchId].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(','))); const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' })); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'aether-license-codes.csv'; anchor.click(); URL.revokeObjectURL(url); }
+      function renderSummary(summary) { $('summary').innerHTML = [['总数', summary.total], ['未兑换', summary.available], ['有效中', summary.redeemed], ['已过期', summary.expired], ['已撤销', summary.revoked]].map(([name, value]) => `<div class="card"><span>${name}</span><strong>${value}</strong></div>`).join(''); }
+      function renderLicenses(licenses) { $('licenses').innerHTML = licenses.map((item) => `<tr><td>${item.batchId.slice(6, 14)}</td><td>${item.plan}</td><td class="status">${item.status}</td><td>${termName(item)}</td><td>${item.deviceCount}/${item.deviceLimit}</td><td>${fmt(item.redeemedAt)}</td><td>${fmt(item.expiresAt)}</td><td>${item.exportCount}</td><td>${item.status !== 'revoked' ? `<button class="danger" data-revoke="${item.id}" type="button">撤销</button>` : '-'}</td></tr>`).join('') || '<tr><td colspan="9">暂无兑换码</td></tr>'; document.querySelectorAll('[data-revoke]').forEach((button) => button.addEventListener('click', async () => { if (!confirm('撤销后，已授权用户将无法继续导出。')) return; try { await request(`/api/admin/licenses/${button.dataset.revoke}/revoke`, { method: 'POST' }); await load(); } catch (error) { $('notice').textContent = error.message; } })); }
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+      function resetNotificationForm() { $('notification-form').reset(); $('notification-form').elements.id.value = ''; }
+      function renderNotifications(items) { $('notifications').innerHTML = items.map((item) => `<tr><td><strong>${escapeHtml(item.titleZh)}</strong><br><span style="color:#8498ac">${escapeHtml(item.titleEn)}</span></td><td class="status">${escapeHtml(item.status)}</td><td>${fmt(item.updatedAt)}</td><td><button class="ghost" data-edit-notification="${item.id}" type="button">编辑</button> ${item.status === 'published' ? `<button class="danger" data-withdraw-notification="${item.id}" type="button">撤回</button>` : `<button data-publish-notification="${item.id}" type="button">发布</button>`} <button class="danger" data-delete-notification="${item.id}" type="button">删除</button></td></tr>`).join('') || '<tr><td colspan="4">暂无通知</td></tr>'; document.querySelectorAll('[data-edit-notification]').forEach((button) => button.addEventListener('click', () => { const item = items.find((entry) => entry.id === button.dataset.editNotification); if (!item) return; const form = $('notification-form'); Object.entries(item).forEach(([key, value]) => { if (form.elements[key]) form.elements[key].value = value || ''; }); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); })); document.querySelectorAll('[data-publish-notification]').forEach((button) => button.addEventListener('click', async () => { try { await request(`/api/admin/notifications/${button.dataset.publishNotification}/publish`, { method: 'POST' }); await loadNotifications(); } catch (error) { $('notification-notice').textContent = error.message; } })); document.querySelectorAll('[data-withdraw-notification]').forEach((button) => button.addEventListener('click', async () => { try { await request(`/api/admin/notifications/${button.dataset.withdrawNotification}/withdraw`, { method: 'POST' }); await loadNotifications(); } catch (error) { $('notification-notice').textContent = error.message; } })); document.querySelectorAll('[data-delete-notification]').forEach((button) => button.addEventListener('click', async () => { if (!confirm('确定删除此通知？')) return; try { await request(`/api/admin/notifications/${button.dataset.deleteNotification}`, { method: 'DELETE' }); await loadNotifications(); } catch (error) { $('notification-notice').textContent = error.message; } })); }
+      async function loadNotifications() { try { const data = await request('/api/admin/notifications'); renderNotifications(data.notifications || []); } catch (error) { $('notification-notice').textContent = error.message; } }
+      async function load() { try { const [summary, licenses] = await Promise.all([request('/api/admin/licenses/summary'), request('/api/admin/licenses')]); renderSummary(summary); renderLicenses(licenses.licenses); } catch (error) { sessionStorage.removeItem(sessionKey); showLogin(error.message); } }
+      async function loadExperienceLink() { try { const data = await request('/api/admin/free-experience-link'); $('experience-link').value = data.url || ''; $('experience-title-zh').value = data.titleZh || ''; $('experience-title-en').value = data.titleEn || ''; $('experience-description-zh').value = data.descriptionZh || ''; $('experience-description-en').value = data.descriptionEn || ''; $('experience-button-zh').value = data.buttonZh || ''; $('experience-button-en').value = data.buttonEn || ''; } catch (error) { $('experience-link-notice').textContent = error.message; } }
+      $('login-form').addEventListener('submit', async (event) => { event.preventDefault(); try { const data = await request('/api/admin/licenses/login', { method: 'POST', body: JSON.stringify({ password: $('password').value }) }); sessionStorage.setItem(sessionKey, data.token); $('password').value = ''; $('login').style.display = 'none'; $('app').style.display = 'block'; await Promise.all([load(), loadExperienceLink(), loadNotifications()]); } catch (error) { $('login-notice').textContent = error.message; } });
+      $('generate-form').addEventListener('submit', async (event) => { event.preventDefault(); $('notice').textContent = ''; try { const form = new FormData(event.target); const payload = Object.fromEntries(form.entries()); payload.count = Number(payload.count); payload.deviceLimit = Number(payload.deviceLimit); const data = await request('/api/admin/licenses/generate', { method: 'POST', body: JSON.stringify(payload) }); lastBatch = data.codes; $('codes').value = data.codes.map((item) => item.code).join('\n'); $('download').disabled = false; $('notice').textContent = `已生成 ${data.codes.length} 个兑换码，批次：${data.batchId}`; await load(); } catch (error) { $('notice').textContent = error.message; } });
+      $('password-form').addEventListener('submit', async (event) => { event.preventDefault(); $('password-notice').textContent = ''; const form = new FormData(event.target); const currentPassword = form.get('currentPassword'); const newPassword = form.get('newPassword'); const confirmPassword = form.get('confirmPassword'); if (newPassword !== confirmPassword) { $('password-notice').textContent = '两次输入的新密码不一致'; return; } try { await request('/api/admin/licenses/password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }); sessionStorage.removeItem(sessionKey); event.target.reset(); showLogin('密码已修改，请使用新密码重新登录'); } catch (error) { $('password-notice').textContent = error.message; } });
+      $('experience-link-form').addEventListener('submit', async (event) => { event.preventDefault(); $('experience-link-notice').textContent = ''; try { const data = await request('/api/admin/free-experience-link', { method: 'POST', body: JSON.stringify({ url: $('experience-link').value.trim(), titleZh: $('experience-title-zh').value, titleEn: $('experience-title-en').value, descriptionZh: $('experience-description-zh').value, descriptionEn: $('experience-description-en').value, buttonZh: $('experience-button-zh').value, buttonEn: $('experience-button-en').value }) }); $('experience-link').value = data.url; $('experience-link-notice').textContent = '免费体验内容已更新'; } catch (error) { $('experience-link-notice').textContent = error.message; } });
+      $('notification-form').addEventListener('submit', async (event) => { event.preventDefault(); $('notification-notice').textContent = ''; const form = new FormData(event.target); const id = form.get('id'); const payload = { titleZh: form.get('titleZh'), titleEn: form.get('titleEn'), bodyZh: form.get('bodyZh'), bodyEn: form.get('bodyEn') }; try { await request(id ? `/api/admin/notifications/${id}` : '/api/admin/notifications', { method: id ? 'PATCH' : 'POST', body: JSON.stringify(payload) }); $('notification-notice').textContent = '草稿已保存'; resetNotificationForm(); await loadNotifications(); } catch (error) { $('notification-notice').textContent = error.message; } });
+      $('notification-reset').addEventListener('click', resetNotificationForm); $('download').addEventListener('click', downloadCsv); $('refresh').addEventListener('click', load); $('logout').addEventListener('click', () => { sessionStorage.removeItem(sessionKey); showLogin(); }); if (token()) { $('login').style.display = 'none'; $('app').style.display = 'block'; load(); loadExperienceLink(); loadNotifications(); }
+    })();
+  </script>
+</body>
+</html>

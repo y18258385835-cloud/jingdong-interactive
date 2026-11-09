@@ -1,0 +1,10 @@
+node_modules/
+test-results/
+playwright-report/
+output/
+tmp/
+.playwright-cli/
+.export-player-build/
+.env
+.env.*
+data/licenses.json

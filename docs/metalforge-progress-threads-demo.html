@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MetalForge Progress/Threads 1:1 复刻 · 丝线进度演示</title>
+<style>
+  :root {
+    --bg: #0b0d14; --panel: #141824; --panel2: #1a1f2e; --line: #2a3042;
+    --txt: #e6e9f2; --dim: #8b93a7; --acc: #FF5EB0; --acc2: #4794FF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--txt); overflow: hidden; }
+  #app { display: flex; height: 100vh; }
+  #stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; }
+  #stageCanvas { max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; }
+  .badge { position: absolute; top: 14px; left: 16px; font-size: 11px; color: #cfd4e3; background: rgba(20,24,36,.72); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; letter-spacing: .3px; backdrop-filter: blur(6px); }
+  .badge b { color: var(--acc); }
+  .fps { position: absolute; top: 14px; right: 16px; font-size: 11px; color: #9aa4bb; background: rgba(20,24,36,.72); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; }
+  #panel { width: 348px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  #panelHead { padding: 13px 16px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  #panelHead h1 { font-size: 15px; font-weight: 700; letter-spacing: .3px; }
+  #panelHead h1 span { color: var(--acc); }
+  #panelHead p { font-size: 11px; color: var(--dim); margin-top: 3px; }
+  #params { flex: 1; overflow-y: auto; padding: 11px 16px 16px; }
+  .grp { margin-bottom: 12px; }
+  .grp-t { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .grp-t .nm { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; color: var(--acc); }
+  .grp-t .ln { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,94,176,.5), transparent); }
+  .row { margin-bottom: 8px; }
+  .row .lab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+  .row .lab span { font-size: 11px; color: #c6cbd9; }
+  .row .lab em { font-style: normal; font-size: 10px; color: #fff; font-family: ui-monospace, Menlo, monospace; }
+  input[type=range] { -webkit-appearance: none; width: 100%; height: 16px; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--line); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; margin-top: -4px; background: var(--acc); box-shadow: 0 0 8px rgba(255,94,176,.6); border: none; }
+  .color-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .color-row .ck { display: flex; align-items: center; gap: 8px; }
+  .color-row label { font-size: 11px; color: #c6cbd9; }
+  input[type=color] { width: 30px; height: 22px; border: 1px solid var(--line); border-radius: 5px; background: transparent; padding: 0; cursor: pointer; }
+  input[type=color]::-webkit-color-swatch-wrapper { padding: 2px; }
+  input[type=color]::-webkit-color-swatch { border: none; border-radius: 3px; }
+  .color-row code { font-size: 10px; color: var(--dim); font-family: ui-monospace, monospace; }
+  #panelFoot { border-top: 1px solid var(--line); padding: 12px 16px; flex-shrink: 0; }
+  .btns { display: flex; gap: 8px; margin-bottom: 9px; }
+  .btn { flex: 1; font-size: 12px; font-weight: 600; color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc2)); border: none; border-radius: 8px; padding: 8px 0; cursor: pointer; transition: filter .15s, transform .05s; }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:active { transform: scale(.97); }
+  .btn.ghost { background: var(--panel2); border: 1px solid var(--line); color: var(--txt); }
+  #shareLink { width: 100%; font-size: 10px; color: var(--dim); background: var(--panel2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px; font-family: ui-monospace, monospace; resize: none; height: 40px; }
+  #toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); opacity: 0; background: #10141f; border: 1px solid var(--acc); color: #fff; font-size: 12px; padding: 8px 16px; border-radius: 8px; transition: .25s; pointer-events: none; z-index: 99; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="stageCanvas"></canvas>
+    <div class="badge">MetalForge <b>Progress / Threads</b> · 1:1 复刻（mfp_threads 逐像素移植）</div>
+    <div class="fps" id="fps">-- fps</div>
+  </div>
+  <div id="panel">
+    <div id="panelHead">
+      <h1>Parameters · <span>THREADS</span></h1>
+      <p>水平丝线层随进度生长 · 前端光晕/尾部淡出 · 全局颗粒（原版 mfp_threads 忠实移植）</p>
+    </div>
+    <div id="params"></div>
+    <div id="panelFoot">
+      <div class="btns">
+        <button class="btn" id="btnShare">Copy share link</button>
+        <button class="btn ghost" id="btnCopyJson">复制 JSON</button>
+        <button class="btn ghost" id="btnReset">恢复默认</button>
+      </div>
+      <textarea id="shareLink" readonly placeholder="点击上方按钮生成可分享参数链接…"></textarea>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  // —— 默认参数（MetalForge progress/threads URL share link 反解）——
+  var DEFAULTS = {
+    background: '#170F14', color1: '#290817', color2: '#FF5EB0', color3: '#FFD9F2',
+    color4: '#4794FF', color5: '#C7E6FF', color6: '#0F3DB2', color7: '#4794FF',
+    progress: 60, speed: 1, scale: 64, amount: 0.085, lag: 0.55, echo: 0.055, bloom: 1,
+    jitter: 0.3, frontIn: -0.1, frontOut: 0.3, churn: 1, feather: 1, stagger: 0.32,
+    pulse: 0.28, pulseRate: 3, cellSize: 1, fill: 1, density: 1, turbulence: 1,
+    sparkle: 1, ripple: 1, falloff: 1, trails: 3, trailGlow: 1, haze: 1, vignette: 1,
+    grain: 0.01, aspect: 3.6, corner: 0.144
+  };
+  // 面板 Schema（MetalForge 分组）
+  var SCHEMA = [
+    { group: 'PROGRESS', params: [
+      { key: 'progress', label: '进度 Progress', min: 0, max: 100, step: 1 },
+      { key: 'speed', label: '速度 Speed', min: 0.25, max: 2.5, step: 0.05 },
+    ]},
+    { group: 'MOTION', params: [
+      { key: 'churn', label: '翻腾 Churn', min: 0, max: 4, step: 0.05 },
+      { key: 'lag', label: '滞后 Lag', min: 0, max: 1.5, step: 0.01 },
+      { key: 'echo', label: '回声 Echo', min: 0, max: 0.5, step: 0.001 },
+      { key: 'jitter', label: '抖动 Jitter', min: 0, max: 1, step: 0.01 },
+    ]},
+    { group: 'FRONT', params: [
+      { key: 'frontIn', label: '起始端 Fill start', min: -1, max: 0.4, step: 0.01 },
+      { key: 'frontOut', label: '结束端 Fill end', min: 0, max: 1.5, step: 0.01 },
+      { key: 'feather', label: '羽化 Edge', min: 0, max: 4, step: 0.05 },
+      { key: 'falloff', label: '衰减 Falloff', min: 0.2, max: 3, step: 0.05 },
+      { key: 'pulse', label: '脉冲 Pulse', min: 0, max: 1, step: 0.01 },
+      { key: 'pulseRate', label: '脉冲速率 Pulse Rate', min: 0, max: 6, step: 0.1 },
+      { key: 'trails', label: '尾迹数 Trails', min: 0, max: 8, step: 1 },
+      { key: 'trailGlow', label: '尾迹辉光 Trail Glow', min: 0, max: 2, step: 0.05 },
+    ]},
+    { group: 'PATTERN', params: [
+      { key: 'scale', label: '尺度 Scale', min: 8, max: 160, step: 1 },
+      { key: 'cellSize', label: '单元大小 Cell Size', min: 0.2, max: 2.5, step: 0.05 },
+      { key: 'stagger', label: '交错 Stagger', min: 0, max: 1, step: 0.01 },
+      { key: 'amount', label: '数量 Amount', min: 0, max: 0.5, step: 0.001 },
+      { key: 'density', label: '密度 Density', min: 0, max: 2, step: 0.05 },
+      { key: 'turbulence', label: '湍流 Turbulence', min: 0, max: 2, step: 0.05 },
+      { key: 'sparkle', label: '闪烁 Sparkle', min: 0, max: 2, step: 0.05 },
+    ]},
+    { group: 'FINISH', params: [
+      { key: 'grain', label: '颗粒 Grain', min: 0, max: 0.06, step: 0.001 },
+      { key: 'bloom', label: '泛光 Bloom', min: 0, max: 2, step: 0.05 },
+      { key: 'ripple', label: '涟漪 Ripple', min: 0, max: 2, step: 0.05 },
+      { key: 'haze', label: '薄雾 Haze', min: 0, max: 2, step: 0.05 },
+      { key: 'vignette', label: '暗角 Vignette', min: 0, max: 2, step: 0.05 },
+    ]},
+    { group: 'BAR', params: [
+      { key: 'aspect', label: '宽高比 Aspect', min: 1.5, max: 9, step: 0.1 },
+      { key: 'corner', label: '圆角 Corner', min: 0, max: 0.5, step: 0.005 },
+      { key: 'fill', label: '填充 Fill', min: 0, max: 1, step: 0.05 },
+    ]}
+  ];
+  var COLOR_KEYS = ['background', 'color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7'];
+  var P = Object.assign({}, DEFAULTS);
+
+  /* ================= 渲染：MetalForge Threads 丝线进度 ================= */
+  function h2r(hex) {
+    var h = (hex || '#170F14').replace('#', '');
+    if (h.length === 3) h = h.split('').map(function (c) { return c + c; }).join('');
+    var n = parseInt(h, 16);
+    if (isNaN(n)) return { r: 23, g: 15, b: 20 };
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function h01(i) { var s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+  function cr(col, a) { return 'rgba(' + (col.r | 0) + ',' + (col.g | 0) + ',' + (col.b | 0) + ',' + Math.max(0, Math.min(1, a)) + ')'; }
+  function rrP(c, x, y, ww, hh, r) { var rr = Math.max(0, Math.min(r, ww / 2, hh / 2)); c.beginPath(); c.moveTo(x + rr, y); c.arcTo(x + ww, y, x + ww, y + hh, rr); c.arcTo(x + ww, y + hh, x, y + hh, rr); c.arcTo(x, y + hh, x, y, rr); c.arcTo(x, y, x + ww, y, rr); c.closePath(); }
+
+  var offCache = document.createElement('canvas');
+  var offCtx = offCache.getContext('2d');
+
+function render(ctx, w, h, t, P) {
+    var tt = t * P.speed;
+    // 原版 progressBar/mfp_threads 逐像素忠实移植（WebGPU WGSL → Canvas ImageData）
+    var bgC = h2r(P.background), c1 = h2r(P.color1), c2 = h2r(P.color2), c3 = h2r(P.color3);
+    var uP = Math.max(0, Math.min(1, P.progress * 0.01));
+    var uA = 1; // alive：静态 1
+    var scale = P.scale, cellSize = P.cellSize, stagger = P.stagger, churn = P.churn;
+    var frontIn = P.frontIn, frontOut = P.frontOut, feather = P.feather, falloff = P.falloff, grain = P.grain;
+    var padX = w * 0.06, barW = w - padX * 2, barH = Math.min(h * 0.9, barW / P.aspect);
+    var bx = (w - barW) / 2, by = (h - barH) / 2, R = P.corner * barH;
+    var asp = barW / barH;
+    // 画布背景透明（bar 外透明，仅 bar 内保留轨道底色）
+    ctx.clearRect(0, 0, w, h);
+    // 原版二维哈希 mfp_h21
+    function h21(x, y) {
+      var px = x * 123.34 - Math.floor(x * 123.34);
+      var py = y * 345.45 - Math.floor(y * 345.45);
+      var dt = px * (px + 34.345) + py * (py + 34.345);
+      var qx = px + dt - Math.floor(px + dt);
+      var qy = py + dt - Math.floor(py + dt);
+      var v = qx * qy - Math.floor(qx * qy);
+      return v;
+    }
+    function sstep(e0, e1, x) { var s = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return s * s * (3 - 2 * s); }
+    var bw = Math.max(2, Math.round(barW)), bh = Math.max(2, Math.round(barH));
+    offCache.width = bw; offCache.height = bh;
+    var img = offCtx.createImageData(bw, bh);
+    var dta = img.data;
+    var pxw = 1.6 * feather / bh; // shader 的 res.y = 像素高度
+    var mIn = frontIn, mOut = asp + frontOut;
+    for (var py = 0; py < bh; py++) {
+      var uvY = (py + 0.5) / bh;
+      var ny = uvY * scale;
+      var ti = Math.floor(ny);
+      var tf = ny - ti - 0.5;
+      var strand = 1 - sstep(0.18 * cellSize, 0.42 * cellSize, Math.abs(tf));
+      var ln = mIn + (mOut - mIn) * uP + (h21(ti, 5) - 0.5) * stagger + Math.sin(tt * 2.2 * churn + ti * 0.7) * 0.055 * uA;
+      for (var px = 0; px < bw; px++) {
+        var pX = ((px + 0.5) / bw) * asp;
+        var dd = pX - ln;
+        var on = 1 - sstep(-pxw * 2, pxw * 2, dd);
+        var dd2 = Math.max(0, -dd);
+        var os = on * strand;
+        var e2 = Math.exp(-dd2 * 3 * falloff) * os;
+        var e3 = Math.exp(-dd2 * 14 * falloff) * os;
+        var dh = (h21(px + 0.5, py + 0.5) - 0.5) * grain * 255;
+        var id = (py * bw + px) * 4;
+        dta[id] = Math.max(0, Math.min(255, bgC.r + c1.r * os + c2.r * e2 + c3.r * e3 + dh));
+        dta[id + 1] = Math.max(0, Math.min(255, bgC.g + c1.g * os + c2.g * e2 + c3.g * e3 + dh));
+        dta[id + 2] = Math.max(0, Math.min(255, bgC.b + c1.b * os + c2.b * e2 + c3.b * e3 + dh));
+        dta[id + 3] = 255;
+      }
+    }
+    offCtx.putImageData(img, 0, 0);
+    // 圆角矩形裁剪绘制
+    ctx.save();
+    rrP(ctx, bx, by, barW, barH, R);
+    ctx.clip();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(offCache, Math.round(bx), Math.round(by), bw, bh);
+    ctx.restore();
+    rrP(ctx, bx, by, barW, barH, R);
+    ctx.strokeStyle = cr(c3, 0.06);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  /* ================= 预览主循环 ================= */
+  var canvas = document.getElementById('stageCanvas');
+  var ctx = canvas.getContext('2d');
+  var t0 = performance.now(), frames = 0, lastFpsT = t0;
+  function fit() {
+    var r = document.getElementById('stage').getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(r.width * Math.min(1, window.devicePixelRatio || 1)));
+    canvas.width = Math.min(canvas.width, 300);
+    canvas.height = Math.max(1, Math.round(canvas.width / 3.6 * 1.25));
+    canvas.height = Math.min(canvas.height, 120);
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  function loop(now) {
+    try {
+      render(ctx, canvas.width, canvas.height, (now - t0) / 1000, P);
+    } catch (e) {
+      document.getElementById('fps').textContent = 'ERR: ' + e.message;
+      return;
+    }
+    frames++;
+    if (now - lastFpsT > 500) { document.getElementById('fps').textContent = Math.round(frames * 1000 / (now - lastFpsT)) + ' fps'; frames = 0; lastFpsT = now; }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ================= 参数面板 ================= */
+  var COLOR_LABELS = { background: '背景 Track', color1: '深色 Deep', color2: '主色 Mid', color3: '辉光 Glow', color4: '蓝 Blue', color5: '浅蓝 Light Blue', color6: '深蓝 Deep Blue', color7: '蓝2 Blue2' };
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined && text !== null) n.textContent = text; return n; }
+  function grpT(name) { var t = el('div', 'grp-t'); t.appendChild(el('span', 'nm', name)); t.appendChild(el('div', 'ln')); return t; }
+  function fmt(v, p) { return Number(v).toFixed(p.step >= 1 ? 0 : p.step >= 0.01 ? 2 : 3); }
+  function buildPanel() {
+    var wrap = document.getElementById('params');
+    wrap.innerHTML = '';
+    var g0 = el('div', 'grp');
+    g0.appendChild(grpT('COLOURS'));
+    COLOR_KEYS.forEach(function (key) {
+      var row = el('div', 'color-row');
+      var ck = el('div', 'ck');
+      var inp = document.createElement('input'); inp.type = 'color'; inp.value = P[key];
+      inp.addEventListener('input', function () { P[key] = inp.value; document.getElementById('clr-' + key).textContent = inp.value.toUpperCase(); });
+      ck.appendChild(inp); ck.appendChild(el('label', null, COLOR_LABELS[key]));
+      row.appendChild(ck);
+      var code = el('code', null, P[key].toUpperCase()); code.id = 'clr-' + key;
+      row.appendChild(code);
+      g0.appendChild(row);
+    });
+    wrap.appendChild(g0);
+    SCHEMA.forEach(function (grp) {
+      var g = el('div', 'grp');
+      g.appendChild(grpT(grp.group));
+      grp.params.forEach(function (p) {
+        var row = el('div', 'row');
+        var lab = el('div', 'lab');
+        lab.appendChild(el('span', null, p.label));
+        var em = el('em'); em.id = 'v-' + p.key; em.textContent = fmt(P[p.key], p);
+        lab.appendChild(em);
+        var input = document.createElement('input');
+        input.type = 'range'; input.min = p.min; input.max = p.max; input.step = p.step; input.value = P[p.key];
+        input.addEventListener('input', function () { P[p.key] = parseFloat(input.value); em.textContent = fmt(P[p.key], p); });
+        row.appendChild(lab); row.appendChild(input);
+        g.appendChild(row);
+      });
+      wrap.appendChild(g);
+    });
+  }
+
+  /* ================= 分享 / JSON ================= */
+  function buildShareLink() {
+    var q = ['effect=progress', 'style=threads', 'autoplay=auto'];
+    var keyMap = { frontIn: 'frontIn', frontOut: 'frontOut', color1: 'color1', color2: 'color2', color3: 'color3', color4: 'color4', color5: 'color5', color6: 'color6', color7: 'color7', background: 'background', grain: 'grain' };
+    var ORDER = ['progress', 'speed', 'scale', 'amount', 'lag', 'echo', 'bloom', 'jitter', 'frontIn', 'frontOut', 'churn', 'feather', 'stagger', 'pulse', 'pulseRate', 'cellSize', 'fill', 'density', 'turbulence', 'sparkle', 'ripple', 'falloff', 'trails', 'trailGlow', 'haze', 'vignette', 'grain', 'aspect', 'corner'];
+    ORDER.forEach(function (k) {
+      var v = P[k];
+      var outK = keyMap[k] || k;
+      q.push(outK + '=' + (k === 'background' || (k.length === 6 && k.indexOf('color') === 0) ? encodeURIComponent(v) : v));
+    });
+    return 'https://metalforge.xyz/editor#' + q.join('&');
+  }
+  function buildJSON() { return JSON.stringify(P, null, 2); }
+  function copyText(txt, msg) {
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(function () { toast(msg); })
+      .catch(function () { var ta = document.getElementById('shareLink'); ta.value = txt; ta.select(); try { document.execCommand('copy'); toast(msg); } catch (e) { toast('已显示在输入框，请手动复制'); } });
+  }
+  var toastTimer;
+  function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1800); }
+  document.getElementById('btnShare').addEventListener('click', function () { var link = buildShareLink(); document.getElementById('shareLink').value = link; copyText(link, '分享链接已复制（含全部参数）'); });
+  document.getElementById('btnCopyJson').addEventListener('click', function () { copyText(buildJSON(), '参数 JSON 已复制'); });
+  document.getElementById('btnReset').addEventListener('click', function () { Object.assign(P, DEFAULTS); buildPanel(); toast('已恢复 MetalForge 默认参数'); });
+  buildPanel();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "鲸动交互平台",
+  "description": "专业的桌面级多媒体动效时间轴与场景交互创作工作台（鲸动交互平台）",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
