@@ -1,5 +1,0 @@
-dist/
-artifacts/
-src-tauri/target/
-src-tauri/Cargo.lock
-tauri.generated.conf.json

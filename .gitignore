@@ -27,7 +27,14 @@ data/exports/
 runtime/
 server/bundle.mjs
 
-# Local packaging, installers, and internal ops/VPS scripts (contain sensitive credentials)
+# Internal website, company portal, admin backends and deployment bundles
+website/
+jingdongnet/
+src/website/
+store-package/
+鲸动交互平台-服务器部署/
+server/license-admin.html
+
 *.exe
 *.msi
 *.msix
