@@ -3,9 +3,12 @@
 > **AI 驱动的次世代 2D / 3D 可视化交互场景、数字孪生大屏与体感互动创作引擎**
 
 ![License](https://img.shields.io/badge/License-Apache%202.0%20with%20Commons%20Clause%20(Non--Commercial)-blue)
+![Website](https://img.shields.io/badge/Official%20Website-www.jd--hub.top-brightgreen)
 ![Node](https://img.shields.io/badge/Node.js-20%2B-green)
 ![React](https://img.shields.io/badge/React-19-61dafb)
 ![Three.js](https://img.shields.io/badge/Three.js-WebGL%20%2F%203D%20Gaussian%20Splats-black)
+
+🌐 **官方网站**：[https://www.jd-hub.top/](https://www.jd-hub.top/) | 🏢 **企业官网**：[https://www.jd-hub.top/company/](https://www.jd-hub.top/company/)
 
 **鲸动交互平台（Aether Interactive）** 是一款集成了 **AI 场景生成、WebGL/Three.js 3D 渲染、Web 特效（VFX/Saber）、实时物联网（MQTT）数字孪生大屏、MediaPipe 摄像头隔空体感交互** 以及 **独立离线播放器导出** 的全栈可视化交互创作工具。
 
